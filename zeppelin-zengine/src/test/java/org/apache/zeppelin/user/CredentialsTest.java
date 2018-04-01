@@ -14,17 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.user;
+
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-
 public class CredentialsTest {
-
   @Test
   public void testDefaultProperty() throws IOException {
     Credentials credentials = new Credentials(false, null, null);

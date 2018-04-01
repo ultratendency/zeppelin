@@ -16,13 +16,13 @@
  */
 package org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.scheduler;
 
-import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.ZeppelinClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.ZeppelinClient;
+
 /**
  * Routine that sends PING to all connected Zeppelin ws connections.
- *
  */
 public class ZeppelinHeartbeat implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(ZeppelinHubHeartbeat.class);

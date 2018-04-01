@@ -14,23 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 package org.apache.zeppelin.storage;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import java.io.IOException;
+
 import org.apache.zeppelin.conf.ZeppelinConfiguration;
-import org.apache.zeppelin.helium.HeliumConf;
 import org.apache.zeppelin.interpreter.InterpreterInfoSaving;
 import org.apache.zeppelin.interpreter.InterpreterSetting;
 import org.apache.zeppelin.notebook.NotebookAuthorizationInfoSaving;
-import org.apache.zeppelin.user.Credentials;
-import org.apache.zeppelin.user.CredentialsInfoSaving;
 import org.apache.zeppelin.util.ReflectionUtils;
-
-import java.io.IOException;
 
 /**
  * Interface for storing zeppelin configuration.
@@ -42,7 +38,6 @@ import java.io.IOException;
  *
  */
 public abstract class ConfigStorage {
-
   private static ConfigStorage instance;
 
   protected ZeppelinConfiguration zConf;
@@ -62,7 +57,6 @@ public abstract class ConfigStorage {
         new Class[] {ZeppelinConfiguration.class}, new Object[] {zConf});
   }
 
-
   public ConfigStorage(ZeppelinConfiguration zConf) {
     this.zConf = zConf;
   }
@@ -72,7 +66,7 @@ public abstract class ConfigStorage {
   public abstract InterpreterInfoSaving loadInterpreterSettings() throws IOException;
 
   public abstract void save(NotebookAuthorizationInfoSaving authorizationInfoSaving)
-      throws IOException;
+          throws IOException;
 
   public abstract NotebookAuthorizationInfoSaving loadNotebookAuthorization() throws IOException;
 

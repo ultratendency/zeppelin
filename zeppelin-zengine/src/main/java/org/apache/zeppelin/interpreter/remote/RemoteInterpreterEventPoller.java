@@ -14,28 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter.remote;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import org.apache.thrift.TException;
-import org.apache.zeppelin.display.AngularObject;
-import org.apache.zeppelin.display.AngularObjectRegistry;
-import org.apache.zeppelin.helium.ApplicationEventListener;
-import org.apache.zeppelin.interpreter.InterpreterContextRunner;
-import org.apache.zeppelin.interpreter.InterpreterGroup;
-import org.apache.zeppelin.interpreter.InterpreterResult;
-import org.apache.zeppelin.interpreter.ManagedInterpreterGroup;
-import org.apache.zeppelin.interpreter.RemoteZeppelinServerResource;
-import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterEvent;
-import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterEventType;
-import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterService.Client;
-import org.apache.zeppelin.interpreter.thrift.ZeppelinServerResourceParagraphRunner;
-import org.apache.zeppelin.resource.Resource;
-import org.apache.zeppelin.resource.ResourceId;
-import org.apache.zeppelin.resource.ResourcePool;
-import org.apache.zeppelin.resource.ResourceSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +32,24 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.zeppelin.display.AngularObject;
+import org.apache.zeppelin.display.AngularObjectRegistry;
+import org.apache.zeppelin.helium.ApplicationEventListener;
+import org.apache.zeppelin.interpreter.InterpreterContextRunner;
+import org.apache.zeppelin.interpreter.InterpreterResult;
+import org.apache.zeppelin.interpreter.ManagedInterpreterGroup;
+import org.apache.zeppelin.interpreter.RemoteZeppelinServerResource;
+import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterEvent;
+import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterEventType;
+import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterService.Client;
+import org.apache.zeppelin.interpreter.thrift.ZeppelinServerResourceParagraphRunner;
+import org.apache.zeppelin.resource.Resource;
+import org.apache.zeppelin.resource.ResourceId;
+import org.apache.zeppelin.resource.ResourcePool;
+import org.apache.zeppelin.resource.ResourceSet;
+
 /**
- * Processes message from RemoteInterpreter process
+ * Processes message from RemoteInterpreter process.
  */
 public class RemoteInterpreterEventPoller extends Thread {
   private static final Logger logger = LoggerFactory.getLogger(RemoteInterpreterEventPoller.class);
@@ -65,9 +65,8 @@ public class RemoteInterpreterEventPoller extends Thread {
 
   Gson gson = new Gson();
 
-  public RemoteInterpreterEventPoller(
-      RemoteInterpreterProcessListener listener,
-      ApplicationEventListener appListener) {
+  public RemoteInterpreterEventPoller(RemoteInterpreterProcessListener listener,
+          ApplicationEventListener appListener) {
     this.listener = listener;
     this.appListener = appListener;
     shutdown = false;
@@ -160,12 +159,12 @@ public class RemoteInterpreterEventPoller extends Thread {
           // on output append
           Map<String, String> outputAppend = gson.fromJson(
                   event.getData(), new TypeToken<Map<String, Object>>() {}.getType());
-          String noteId = (String) outputAppend.get("noteId");
-          String paragraphId = (String) outputAppend.get("paragraphId");
+          String noteId = outputAppend.get("noteId");
+          String paragraphId = outputAppend.get("paragraphId");
           int index = Integer.parseInt(outputAppend.get("index"));
-          String outputToAppend = (String) outputAppend.get("data");
+          String outputToAppend = outputAppend.get("data");
 
-          String appId = (String) outputAppend.get("appId");
+          String appId = outputAppend.get("appId");
 
           if (appId == null) {
             runner.appendBuffer(noteId, paragraphId, index, outputToAppend);
@@ -187,8 +186,8 @@ public class RemoteInterpreterEventPoller extends Thread {
             for (int i = 0; i < messages.size(); i++) {
               Map<String, String> m = messages.get(i);
               InterpreterResult.Type type =
-                  InterpreterResult.Type.valueOf((String) m.get("type"));
-              String outputToUpdate = (String) m.get("data");
+                  InterpreterResult.Type.valueOf(m.get("type"));
+              String outputToUpdate = m.get("data");
 
               listener.onOutputUpdated(noteId, paragraphId, i, type, outputToUpdate);
             }
@@ -197,13 +196,12 @@ public class RemoteInterpreterEventPoller extends Thread {
           // on output update
           Map<String, String> outputAppend = gson.fromJson(
               event.getData(), new TypeToken<Map<String, Object>>() {}.getType());
-          String noteId = (String) outputAppend.get("noteId");
-          String paragraphId = (String) outputAppend.get("paragraphId");
+          String noteId = outputAppend.get("noteId");
+          String paragraphId = outputAppend.get("paragraphId");
           int index = Integer.parseInt(outputAppend.get("index"));
-          InterpreterResult.Type type =
-              InterpreterResult.Type.valueOf((String) outputAppend.get("type"));
-          String outputToUpdate = (String) outputAppend.get("data");
-          String appId = (String) outputAppend.get("appId");
+          InterpreterResult.Type type = InterpreterResult.Type.valueOf(outputAppend.get("type"));
+          String outputToUpdate = outputAppend.get("data");
+          String appId = outputAppend.get("appId");
 
           if (appId == null) {
             listener.onOutputUpdated(noteId, paragraphId, index, type, outputToUpdate);
@@ -268,12 +266,9 @@ public class RemoteInterpreterEventPoller extends Thread {
     while (client.getEvent().getType() != RemoteInterpreterEventType.NO_OP) {}
   }
 
-  private void progressRemoteZeppelinControlEvent(
-      RemoteZeppelinServerResource.Type resourceType,
-      RemoteInterpreterProcessListener remoteWorksEventListener,
-      RemoteZeppelinServerResource reqResourceBody) throws Exception {
-    boolean broken = false;
-    final Gson gson = new Gson();
+  private void progressRemoteZeppelinControlEvent(RemoteZeppelinServerResource.Type resourceType,
+          RemoteInterpreterProcessListener remoteWorksEventListener,
+          RemoteZeppelinServerResource reqResourceBody) {
     final String eventOwnerKey = reqResourceBody.getOwnerKey();
     try {
       if (resourceType == RemoteZeppelinServerResource.Type.PARAGRAPH_RUNNERS) {
@@ -291,7 +286,6 @@ public class RemoteInterpreterEventPoller extends Thread {
 
         RemoteInterpreterProcessListener.RemoteWorksEventListener callBackEvent =
             new RemoteInterpreterProcessListener.RemoteWorksEventListener() {
-
               @Override
               public void onFinished(Object resultObject) {
                 if (resultObject != null && resultObject instanceof List) {
@@ -333,7 +327,6 @@ public class RemoteInterpreterEventPoller extends Thread {
     } catch (Exception e) {
       logger.error("Can't get RemoteInterpreterEvent", e);
       waitQuietly();
-
     }
   }
 
@@ -433,7 +426,7 @@ public class RemoteInterpreterEventPoller extends Thread {
   }
 
   public void sendInvokeMethodResult(final InvokeResourceMethodEventMessage message,
-                                     final Object o) {
+          final Object o) {
     interpreterProcess.callRemoteFunction(
         new RemoteInterpreterProcess.RemoteFunction<Void>() {
           @Override

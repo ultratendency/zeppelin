@@ -16,13 +16,9 @@
  */
 package org.apache.zeppelin.search;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -39,7 +35,6 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -52,14 +47,19 @@ import org.apache.lucene.search.highlight.TextFragment;
 import org.apache.lucene.search.highlight.TokenSources;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
-import org.apache.zeppelin.notebook.Note;
-import org.apache.zeppelin.notebook.Paragraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.zeppelin.notebook.Note;
+import org.apache.zeppelin.notebook.Paragraph;
 
 /**
  * Search (both, indexing and query) the notebooks using Lucene.
@@ -91,9 +91,6 @@ public class LuceneSearch implements SearchService {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.zeppelin.search.Search#query(java.lang.String)
-   */
   @Override
   public List<Map<String, String>> query(String queryStr) {
     if (null == ramDirectory) {
@@ -125,7 +122,7 @@ public class LuceneSearch implements SearchService {
   }
 
   private List<Map<String, String>> doSearch(IndexSearcher searcher, Query query,
-      Analyzer analyzer, Highlighter highlighter) {
+          Analyzer analyzer, Highlighter highlighter) {
     List<Map<String, String>> matchingParagraphs = Lists.newArrayList();
     ScoreDoc[] hits;
     try {
@@ -180,9 +177,6 @@ public class LuceneSearch implements SearchService {
     return matchingParagraphs;
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.zeppelin.search.Search#updateIndexDoc(org.apache.zeppelin.notebook.Note)
-   */
   @Override
   public void updateIndexDoc(Note note) throws IOException {
     updateIndexNoteName(note);
@@ -191,7 +185,7 @@ public class LuceneSearch implements SearchService {
     }
   }
 
-  private void updateIndexNoteName(Note note) throws IOException {
+  private void updateIndexNoteName(Note note) {
     String noteName = note.getName();
     String noteId = note.getId();
     LOG.debug("Indexing Notebook {}, '{}'", noteId, noteName);
@@ -202,7 +196,7 @@ public class LuceneSearch implements SearchService {
     updateDoc(noteId, noteName, null);
   }
 
-  private void updateIndexParagraph(Note note, Paragraph p) throws IOException {
+  private void updateIndexParagraph(Note note, Paragraph p) {
     if (p.getText() == null) {
       LOG.debug("Skipping empty paragraph");
       return;
@@ -212,14 +206,13 @@ public class LuceneSearch implements SearchService {
 
   /**
    * Updates index for the given note: either note.name or a paragraph If
-   * paragraph is <code>null</code> - updates only for the note.name
+   * paragraph is <code>null</code> - updates only for the note.name.
    *
    * @param noteId
    * @param noteName
    * @param p
-   * @throws IOException
    */
-  private void updateDoc(String noteId, String noteName, Paragraph p) throws IOException {
+  private void updateDoc(String noteId, String noteName, Paragraph p) {
     String id = formatId(noteId, p);
     Document doc = newDocument(id, noteName, p);
     try {
@@ -281,9 +274,6 @@ public class LuceneSearch implements SearchService {
     return doc;
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.zeppelin.search.Search#addIndexDocs(java.util.Collection)
-   */
   @Override
   public void addIndexDocs(Collection<Note> collection) {
     int docsIndexed = 0;
@@ -307,9 +297,6 @@ public class LuceneSearch implements SearchService {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.zeppelin.search.Search#addIndexDoc(org.apache.zeppelin.notebook.Note)
-   */
   @Override
   public void addIndexDoc(Note note) {
     try {
@@ -337,18 +324,11 @@ public class LuceneSearch implements SearchService {
     }
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.zeppelin.search.Search#deleteIndexDocs(org.apache.zeppelin.notebook.Note)
-   */
   @Override
   public void deleteIndexDocs(Note note) {
     deleteDoc(note, null);
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.zeppelin.search.Search
-   *  #deleteIndexDoc(org.apache.zeppelin.notebook.Note, org.apache.zeppelin.notebook.Paragraph)
-   */
   @Override
   public void deleteIndexDoc(Note note, Paragraph p) {
     deleteDoc(note, p);
@@ -370,9 +350,6 @@ public class LuceneSearch implements SearchService {
     LOG.debug("Done, index contains {} docs now" + writer.numDocs());
   }
 
-  /* (non-Javadoc)
-   * @see org.apache.zeppelin.search.Search#close()
-   */
   @Override
   public void close() {
     try {
@@ -383,7 +360,7 @@ public class LuceneSearch implements SearchService {
   }
 
   /**
-   * Indexes a notebook name
+   * Indexes a notebook name.
    *
    * @throws IOException
    */
@@ -397,7 +374,7 @@ public class LuceneSearch implements SearchService {
   }
 
   /**
-   * Indexes a single document:
+   * Indexes a single document.
    *  - code of the paragraph (if non-null)
    *  - or just a note name
    */
@@ -407,5 +384,4 @@ public class LuceneSearch implements SearchService {
     Document doc = newDocument(id, noteName, p);
     w.addDocument(doc);
   }
-
 }

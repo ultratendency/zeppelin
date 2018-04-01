@@ -14,42 +14,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter.remote;
 
-import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterEvent;
-import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterService;
-import org.junit.Test;
-
-import static org.apache.zeppelin.interpreter.thrift.RemoteInterpreterEventType.NO_OP;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import static org.apache.zeppelin.interpreter.thrift.RemoteInterpreterEventType.NO_OP;
+
+import org.junit.Test;
+
+import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterEvent;
+import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterService;
+
 public class RemoteInterpreterEventPollerTest {
+  @Test
+  public void shouldClearUnreadEventsOnShutdown() throws Exception {
+    RemoteInterpreterProcess interpreterProc = getMockEventsInterpreterProcess();
+    RemoteInterpreterEventPoller eventPoller = new RemoteInterpreterEventPoller(null, null);
 
-	@Test
-	public void shouldClearUnreadEventsOnShutdown() throws Exception {
-		RemoteInterpreterProcess interpreterProc = getMockEventsInterpreterProcess();
-		RemoteInterpreterEventPoller eventPoller = new RemoteInterpreterEventPoller(null, null);
+    eventPoller.setInterpreterProcess(interpreterProc);
+    eventPoller.shutdown();
+    eventPoller.start();
+    eventPoller.join();
 
-		eventPoller.setInterpreterProcess(interpreterProc);
-		eventPoller.shutdown();
-		eventPoller.start();
-		eventPoller.join();
+    assertEquals(NO_OP, interpreterProc.getClient().getEvent().getType());
+  }
 
-		assertEquals(NO_OP, interpreterProc.getClient().getEvent().getType());
-	}
+  private RemoteInterpreterProcess getMockEventsInterpreterProcess() throws Exception {
+    RemoteInterpreterEvent fakeEvent = new RemoteInterpreterEvent();
+    RemoteInterpreterEvent noMoreEvents = new RemoteInterpreterEvent(NO_OP, "");
+    RemoteInterpreterService.Client client = mock(RemoteInterpreterService.Client.class);
+    RemoteInterpreterProcess intProc = mock(RemoteInterpreterProcess.class);
 
-	private RemoteInterpreterProcess getMockEventsInterpreterProcess() throws Exception {
-		RemoteInterpreterEvent fakeEvent = new RemoteInterpreterEvent();
-		RemoteInterpreterEvent noMoreEvents = new RemoteInterpreterEvent(NO_OP, "");
-		RemoteInterpreterService.Client client = mock(RemoteInterpreterService.Client.class);
-		RemoteInterpreterProcess intProc = mock(RemoteInterpreterProcess.class);
+    when(client.getEvent()).thenReturn(fakeEvent, fakeEvent, noMoreEvents);
+    when(intProc.getClient()).thenReturn(client);
 
-		when(client.getEvent()).thenReturn(fakeEvent, fakeEvent, noMoreEvents);
-		when(intProc.getClient()).thenReturn(client);
-
-		return intProc;
-	}
+    return intProc;
+  }
 }

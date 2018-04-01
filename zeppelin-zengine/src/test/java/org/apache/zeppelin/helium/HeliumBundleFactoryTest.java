@@ -16,9 +16,13 @@
  */
 package org.apache.zeppelin.helium;
 
-import com.github.eirslett.maven.plugins.frontend.lib.InstallationException;
-import com.github.eirslett.maven.plugins.frontend.lib.TaskRunnerException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import com.google.common.io.Resources;
+
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -31,9 +35,9 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.zeppelin.conf.ZeppelinConfiguration;
+import com.github.eirslett.maven.plugins.frontend.lib.TaskRunnerException;
 
-import static org.junit.Assert.*;
+import org.apache.zeppelin.conf.ZeppelinConfiguration;
 
 public class HeliumBundleFactoryTest {
   private File tmpDir;
@@ -43,13 +47,14 @@ public class HeliumBundleFactoryTest {
       System.getProperty("java.io.tmpdir") + "/ZeppelinLTest_nodeCache");
 
   @BeforeClass
-  static public void beforeAll() throws IOException {
+  public static void beforeAll() throws IOException {
     FileUtils.deleteDirectory(nodeInstallationDir);
   }
 
   @Before
-  public void setUp() throws InstallationException, TaskRunnerException, IOException {
-    tmpDir = new File(System.getProperty("java.io.tmpdir") + "/ZeppelinLTest_" + System.currentTimeMillis());
+  public void setUp() throws TaskRunnerException, IOException {
+    tmpDir = new File(System.getProperty("java.io.tmpdir") + "/ZeppelinLTest_" +
+            System.currentTimeMillis());
     tmpDir.mkdirs();
 
     // get module dir
@@ -75,7 +80,7 @@ public class HeliumBundleFactoryTest {
   }
 
   @Test
-  public void testInstallNpm() throws InstallationException {
+  public void testInstallNpm() {
     assertTrue(new File(nodeInstallationDir, "/node/npm").isFile());
     assertTrue(new File(nodeInstallationDir, "/node/node").isFile());
     assertTrue(new File(nodeInstallationDir, "/node/yarn/dist/bin/yarn").isFile());
@@ -99,7 +104,7 @@ public class HeliumBundleFactoryTest {
   }
 
   @Test
-  public void bundlePackage() throws IOException, TaskRunnerException {
+  public void bundlePackage() throws IOException {
     HeliumPackage pkg = new HeliumPackage(
         HeliumType.VISUALIZATION,
         "zeppelin-bubblechart",
@@ -120,7 +125,7 @@ public class HeliumBundleFactoryTest {
   }
 
   @Test
-  public void bundleLocalPackage() throws IOException, TaskRunnerException {
+  public void bundleLocalPackage() throws IOException {
     URL res = Resources.getResource("helium/webpack.config.js");
     String resDir = new File(res.getFile()).getParent();
     String localPkg = resDir + "/../../../src/test/resources/helium/vis1";
@@ -140,7 +145,7 @@ public class HeliumBundleFactoryTest {
   }
 
   @Test
-  public void bundleErrorPropagation() throws IOException, TaskRunnerException {
+  public void bundleErrorPropagation() {
     URL res = Resources.getResource("helium/webpack.config.js");
     String resDir = new File(res.getFile()).getParent();
     String localPkg = resDir + "/../../../src/test/resources/helium/vis2";
@@ -167,7 +172,7 @@ public class HeliumBundleFactoryTest {
   }
 
   @Test
-  public void switchVersion() throws IOException, TaskRunnerException {
+  public void switchVersion() throws IOException {
     URL res = Resources.getResource("helium/webpack.config.js");
     String resDir = new File(res.getFile()).getParent();
 

@@ -17,8 +17,24 @@
 package org.apache.zeppelin.helium;
 
 import com.google.gson.Gson;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.zeppelin.interpreter.Interpreter;
 import org.apache.zeppelin.interpreter.InterpreterNotFoundException;
 import org.apache.zeppelin.interpreter.InterpreterSettingManager;
@@ -26,23 +42,20 @@ import org.apache.zeppelin.interpreter.ManagedInterpreterGroup;
 import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcess;
 import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterService;
 import org.apache.zeppelin.notebook.Paragraph;
-import org.apache.zeppelin.resource.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
+import org.apache.zeppelin.resource.DistributedResourcePool;
+import org.apache.zeppelin.resource.Resource;
+import org.apache.zeppelin.resource.ResourcePool;
+import org.apache.zeppelin.resource.ResourceSet;
 
 /**
- * Manages helium packages
+ * Manages helium packages.
  */
 public class Helium {
   private Logger logger = LoggerFactory.getLogger(Helium.class);
   private List<HeliumRegistry> registry = new LinkedList<>();
 
   private HeliumConf heliumConf;
-  private Map<String, List<HeliumPackageSearchResult>> allPackages = new HashMap<>();
+  private Map<String, List<HeliumPackageSearchResult>> allPackages;
 
   private final String heliumConfPath;
   private final String registryPaths;
@@ -52,14 +65,9 @@ public class Helium {
   private final HeliumApplicationFactory applicationFactory;
   private final InterpreterSettingManager interpreterSettingManager;
 
-  public Helium(
-      String heliumConfPath,
-      String registryPaths,
-      File registryCacheDir,
-      HeliumBundleFactory bundleFactory,
-      HeliumApplicationFactory applicationFactory,
-      InterpreterSettingManager interpreterSettingManager)
-      throws IOException {
+  public Helium(String heliumConfPath, String registryPaths, File registryCacheDir,
+          HeliumBundleFactory bundleFactory, HeliumApplicationFactory applicationFactory,
+          InterpreterSettingManager interpreterSettingManager) throws IOException {
     this.heliumConfPath = heliumConfPath;
     this.registryPaths = registryPaths;
     this.registryCacheDir = registryCacheDir;
@@ -71,9 +79,9 @@ public class Helium {
   }
 
   /**
-   * Add HeliumRegistry
+   * Add HeliumRegistry.
    *
-   * @param registry
+   * @param registry the {@link HeliumRegistry} to add
    */
   public void addRegistry(HeliumRegistry registry) {
     synchronized (this.registry) {
@@ -160,7 +168,7 @@ public class Helium {
    * @param packageName
    */
   public Map<String, List<HeliumPackageSearchResult>> getAllPackageInfo(boolean refresh,
-                                                                        String packageName) {
+          String packageName) {
     Map<String, String> enabledPackageInfo = heliumConf.getEnabledPackages();
 
     synchronized (registry) {
@@ -259,7 +267,7 @@ public class Helium {
     Map<String, List<HeliumPackageSearchResult>> infos = getAllPackageInfo(false, pkgName);
     List<HeliumPackageSearchResult> packages = infos.get(pkgName);
     if (StringUtils.isBlank(artifact)) {
-      return packages.get(0); /** return the FIRST package */
+      return packages.get(0); // return the FIRST package
     } else {
       for (HeliumPackageSearchResult pkg : packages) {
         if (pkg.getPkg().getArtifact().equals(artifact)) {
@@ -324,8 +332,7 @@ public class Helium {
   }
 
   public void updatePackageConfig(String artifact, Map<String, Object> pkgConfig)
-      throws IOException {
-
+          throws IOException {
     heliumConf.updatePackageConfig(artifact, pkgConfig);
     saveConfig();
   }
@@ -341,7 +348,7 @@ public class Helium {
   public HeliumPackageSuggestion suggestApp(Paragraph paragraph) {
     HeliumPackageSuggestion suggestion = new HeliumPackageSuggestion();
 
-    Interpreter intp = null;
+    Interpreter intp;
     try {
       intp = paragraph.getBindedInterpreter();
     } catch (InterpreterNotFoundException e) {
@@ -384,7 +391,7 @@ public class Helium {
   }
 
   /**
-   * Get enabled buildBundle packages
+   * Get enabled buildBundle packages.
    *
    * @return ordered list of enabled buildBundle package
    */
@@ -427,15 +434,13 @@ public class Helium {
   }
 
   /**
-   * Get enabled package list in order
-   * @return
+   * @return Get enabled package list in order
    */
   public List<String> getVisualizationPackageOrder() {
     return heliumConf.getBundleDisplayOrder();
   }
 
-  public void setVisualizationPackageOrder(List<String> orderedPackageList)
-      throws IOException {
+  public void setVisualizationPackageOrder(List<String> orderedPackageList) throws IOException {
     heliumConf.setBundleDisplayOrder(orderedPackageList);
     saveConfig();
   }
@@ -460,9 +465,7 @@ public class Helium {
     return createMixedConfig(configPersisted, configSpec);
   }
 
-  public Map<String, Map<String, Object>> getPackageConfig(String pkgName,
-                                                           String artifact) {
-
+  public Map<String, Map<String, Object>> getPackageConfig(String pkgName, String artifact) {
     HeliumPackageSearchResult result = getPackageInfo(pkgName, artifact);
 
     if (result == null) {
@@ -472,14 +475,13 @@ public class Helium {
     HeliumPackage requestedPackage = result.getPkg();
 
     Map<String, Object> configSpec = requestedPackage.getConfig();
-    Map<String, Object> configPersisted =
-        getPackagePersistedConfig(artifact);
+    Map<String, Object> configPersisted = getPackagePersistedConfig(artifact);
 
     return createMixedConfig(configPersisted, configSpec);
   }
 
   private static Map<String, Map<String, Object>> createMixedConfig(Map<String, Object> persisted,
-                                                                   Map<String, Object> spec) {
+          Map<String, Object> spec) {
     Map<String, Map<String, Object>> mixed = new HashMap<>();
     mixed.put("confPersisted", persisted);
     mixed.put("confSpec", spec);

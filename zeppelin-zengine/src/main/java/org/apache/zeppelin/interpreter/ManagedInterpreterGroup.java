@@ -14,14 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 package org.apache.zeppelin.interpreter;
 
-import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcess;
-import org.apache.zeppelin.scheduler.Job;
-import org.apache.zeppelin.scheduler.Scheduler;
-import org.apache.zeppelin.scheduler.SchedulerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,18 +24,23 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcess;
+import org.apache.zeppelin.scheduler.Job;
+import org.apache.zeppelin.scheduler.Scheduler;
+import org.apache.zeppelin.scheduler.SchedulerFactory;
+
 /**
- * ManagedInterpreterGroup runs under zeppelin server
+ * ManagedInterpreterGroup runs under zeppelin server.
  */
 public class ManagedInterpreterGroup extends InterpreterGroup {
-
   private static final Logger LOGGER = LoggerFactory.getLogger(ManagedInterpreterGroup.class);
 
   private InterpreterSetting interpreterSetting;
   private RemoteInterpreterProcess remoteInterpreterProcess; // attached remote interpreter process
 
   /**
-   * Create InterpreterGroup with given id and interpreterSetting, used in ZeppelinServer
+   * Create InterpreterGroup with given id and interpreterSetting, used in ZeppelinServer.
+   *
    * @param id
    * @param interpreterSetting
    */
@@ -56,8 +55,7 @@ public class ManagedInterpreterGroup extends InterpreterGroup {
   }
 
   public synchronized RemoteInterpreterProcess getOrCreateInterpreterProcess(String userName,
-                                                                             Properties properties)
-      throws IOException {
+          Properties properties) throws IOException {
     if (remoteInterpreterProcess == null) {
       LOGGER.info("Create InterpreterProcess for InterpreterGroup: " + getId());
       remoteInterpreterProcess = interpreterSetting.createInterpreterProcess(id, userName,
@@ -81,9 +79,8 @@ public class ManagedInterpreterGroup extends InterpreterGroup {
     return remoteInterpreterProcess;
   }
 
-
   /**
-   * Close all interpreter instances in this group
+   * Close all interpreter instances in this group.
    */
   public synchronized void close() {
     LOGGER.info("Close InterpreterGroup: " + id);
@@ -93,7 +90,7 @@ public class ManagedInterpreterGroup extends InterpreterGroup {
   }
 
   /**
-   * Close all interpreter instances in this session
+   * Close all interpreter instances in this session.
    * @param sessionId
    */
   public synchronized void close(String sessionId) {
@@ -161,5 +158,4 @@ public class ManagedInterpreterGroup extends InterpreterGroup {
       return interpreters;
     }
   }
-
 }

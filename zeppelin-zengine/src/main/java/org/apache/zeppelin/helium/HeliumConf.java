@@ -18,30 +18,31 @@ package org.apache.zeppelin.helium;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.zeppelin.common.JsonSerializable;
 
-import java.util.*;
-
 /**
- * Helium config. This object will be persisted to conf/helium.conf
+ * Helium config. This object will be persisted to conf/helium.conf.
  */
 public class HeliumConf implements JsonSerializable {
-  private static final Gson gson =  new GsonBuilder()
-    .setPrettyPrinting()
-    .registerTypeAdapter(HeliumRegistry.class, new HeliumRegistrySerializer())
-    .create();
+  private static final Gson gson =  new GsonBuilder().setPrettyPrinting()
+          .registerTypeAdapter(HeliumRegistry.class, new HeliumRegistrySerializer()).create();
 
   // enabled packages {name, version}
   private Map<String, String> enabled = Collections.synchronizedMap(new HashMap<String, String>());
 
   // {artifact, {configKey, configValue}}
-  private Map<String, Map<String, Object>> packageConfig =
-      Collections.synchronizedMap(
+  private Map<String, Map<String, Object>> packageConfig = Collections.synchronizedMap(
           new HashMap<String, Map<String, Object>>());
 
   // enabled visualization package display order
-  private List<String> bundleDisplayOrder =
-          Collections.synchronizedList(new LinkedList<String>());
+  private List<String> bundleDisplayOrder = Collections.synchronizedList(new LinkedList<String>());
 
   public Map<String, String> getEnabledPackages() {
     return new HashMap<>(enabled);
@@ -51,8 +52,7 @@ public class HeliumConf implements JsonSerializable {
     enabled.put(name, artifact);
   }
 
-  public void updatePackageConfig(String artifact,
-                                  Map<String, Object> newConfig) {
+  public void updatePackageConfig(String artifact, Map<String, Object> newConfig) {
     if (!packageConfig.containsKey(artifact)) {
       packageConfig.put(artifact,
           Collections.synchronizedMap(new HashMap<String, Object>()));

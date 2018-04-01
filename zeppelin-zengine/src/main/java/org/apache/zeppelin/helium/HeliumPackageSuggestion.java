@@ -22,7 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Suggested apps
+ * Suggested apps.
  */
 public class HeliumPackageSuggestion {
   private final List<HeliumPackageSearchResult> available = new LinkedList<>();
@@ -33,12 +33,10 @@ public class HeliumPackageSuggestion {
    */
 
   public HeliumPackageSuggestion() {
-
   }
 
   public void addAvailablePackage(HeliumPackageSearchResult r) {
     available.add(r);
-
   }
 
   public void sort() {

@@ -32,56 +32,54 @@ import org.apache.zeppelin.notebook.Paragraph;
  *  - remote Elasticsearch
  */
 public interface SearchService {
-
   /**
-   * Full-text search in all the notes
+   * Full-text search in all the notes.
    *
    * @param queryStr a query
    * @return A list of matching paragraphs (id, text, snippet w/ highlight)
    */
-  public List<Map<String, String>> query(String queryStr);
+  List<Map<String, String>> query(String queryStr);
 
   /**
-   * Updates all documents in index for the given note:
+   * Updates all documents in index for the given note.
    *  - name
    *  - all paragraphs
    *
    * @param note a Note to update index for
    * @throws IOException
    */
-  public void updateIndexDoc(Note note) throws IOException;
+  void updateIndexDoc(Note note) throws IOException;
 
   /**
-   * Indexes full collection of notes: all the paragraphs + Note names
+   * Indexes full collection of notes: all the paragraphs + Note names.
    *
    * @param collection of Notes
    */
-  public void addIndexDocs(Collection<Note> collection);
+  void addIndexDocs(Collection<Note> collection);
 
   /**
    * Indexes the given note.
    *
    * @throws IOException If there is a low-level I/O error
    */
-  public void addIndexDoc(Note note);
+  void addIndexDoc(Note note);
 
   /**
-   * Deletes all docs on given Note from index
+   * Deletes all docs on given Note from index.
    */
-  public void deleteIndexDocs(Note note);
+  void deleteIndexDocs(Note note);
 
   /**
-   * Deletes doc for a given
+   * Deletes doc for a given.
    *
    * @param note
    * @param p
    * @throws IOException
    */
-  public void deleteIndexDoc(Note note, Paragraph p);
+  void deleteIndexDoc(Note note, Paragraph p);
 
   /**
-   * Frees the recourses used by index
+   * Frees the recourses used by index.
    */
-  public void close();
-
+  void close();
 }

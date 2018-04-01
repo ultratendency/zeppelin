@@ -16,19 +16,18 @@
  */
 package org.apache.zeppelin.notebook.repo;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Representation of a notebook repo with settings. This is mostly a Wrapper around notebook repo
  * information plus settings.
  */
 public class NotebookRepoWithSettings {
-
   public static final NotebookRepoWithSettings EMPTY =
-      NotebookRepoWithSettings.builder(StringUtils.EMPTY).build();
+          NotebookRepoWithSettings.builder(StringUtils.EMPTY).build();
 
   public String name;
   public String className;

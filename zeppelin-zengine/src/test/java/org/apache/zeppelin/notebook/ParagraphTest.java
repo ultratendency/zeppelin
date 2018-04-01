@@ -14,14 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.notebook;
-
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -32,33 +29,36 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.commons.lang3.tuple.Triple;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.zeppelin.display.AngularObject;
 import org.apache.zeppelin.display.AngularObjectBuilder;
 import org.apache.zeppelin.display.AngularObjectRegistry;
 import org.apache.zeppelin.display.Input;
-import org.apache.zeppelin.interpreter.*;
+import org.apache.zeppelin.interpreter.AbstractInterpreterTest;
+import org.apache.zeppelin.interpreter.Interpreter;
 import org.apache.zeppelin.interpreter.Interpreter.FormType;
 import org.apache.zeppelin.interpreter.InterpreterContext;
 import org.apache.zeppelin.interpreter.InterpreterOption;
 import org.apache.zeppelin.interpreter.InterpreterResult;
 import org.apache.zeppelin.interpreter.InterpreterResult.Code;
 import org.apache.zeppelin.interpreter.InterpreterResult.Type;
+import org.apache.zeppelin.interpreter.InterpreterResultMessage;
+import org.apache.zeppelin.interpreter.InterpreterSetting;
 import org.apache.zeppelin.interpreter.InterpreterSetting.Status;
+import org.apache.zeppelin.interpreter.ManagedInterpreterGroup;
 import org.apache.zeppelin.resource.ResourcePool;
 import org.apache.zeppelin.user.AuthenticationInfo;
 import org.apache.zeppelin.user.Credentials;
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
-import org.mockito.Mockito;
 
 public class ParagraphTest extends AbstractInterpreterTest {
-
   @Test
   public void scriptBodyWithReplName() {
     Note note = createNote();
@@ -158,7 +158,7 @@ public class ParagraphTest extends AbstractInterpreterTest {
   }
 
   @Test
-  public void should_extract_variable_from_angular_object_registry() throws Exception {
+  public void should_extract_variable_from_angular_object_registry() {
     //Given
     final String noteId = "noteId";
 
@@ -219,17 +219,20 @@ public class ParagraphTest extends AbstractInterpreterTest {
     ManagedInterpreterGroup mockInterpreterGroup = mock(ManagedInterpreterGroup.class);
     when(mockInterpreter.getInterpreterGroup()).thenReturn(mockInterpreterGroup);
     when(mockInterpreterGroup.getId()).thenReturn("mock_id_1");
-    when(mockInterpreterGroup.getAngularObjectRegistry()).thenReturn(mock(AngularObjectRegistry.class));
+    when(mockInterpreterGroup.getAngularObjectRegistry())
+            .thenReturn(mock(AngularObjectRegistry.class));
     when(mockInterpreterGroup.getResourcePool()).thenReturn(mock(ResourcePool.class));
 
-    List<InterpreterSetting> spyInterpreterSettingList = spy(Lists.<InterpreterSetting>newArrayList());
+    List<InterpreterSetting> spyInterpreterSettingList =
+            spy(Lists.<InterpreterSetting>newArrayList());
     InterpreterSetting mockInterpreterSetting = mock(InterpreterSetting.class);
     InterpreterOption mockInterpreterOption = mock(InterpreterOption.class);
     when(mockInterpreterSetting.getOption()).thenReturn(mockInterpreterOption);
     when(mockInterpreterOption.permissionIsSet()).thenReturn(false);
     when(mockInterpreterSetting.getStatus()).thenReturn(Status.READY);
     when(mockInterpreterSetting.getId()).thenReturn("mock_id_1");
-    when(mockInterpreterSetting.getOrCreateInterpreterGroup(anyString(), anyString())).thenReturn(mockInterpreterGroup);
+    when(mockInterpreterSetting.getOrCreateInterpreterGroup(anyString(), anyString()))
+            .thenReturn(mockInterpreterGroup);
     spyInterpreterSettingList.add(mockInterpreterSetting);
     when(mockNote.getId()).thenReturn("any_id");
 
@@ -237,12 +240,13 @@ public class ParagraphTest extends AbstractInterpreterTest {
 
     ParagraphJobListener mockJobListener = mock(ParagraphJobListener.class);
     doReturn(mockJobListener).when(spyParagraph).getListener();
-    doNothing().when(mockJobListener).onOutputUpdateAll(Mockito.<Paragraph>any(), Mockito.anyList());
+    doNothing().when(mockJobListener)
+            .onOutputUpdateAll(Mockito.<Paragraph>any(), Mockito.anyList());
 
     InterpreterResult mockInterpreterResult = mock(InterpreterResult.class);
-    when(mockInterpreter.interpret(anyString(), Mockito.<InterpreterContext>any())).thenReturn(mockInterpreterResult);
+    when(mockInterpreter.interpret(anyString(), Mockito.<InterpreterContext>any()))
+            .thenReturn(mockInterpreterResult);
     when(mockInterpreterResult.code()).thenReturn(Code.SUCCESS);
-
 
     // Actual test
     List<InterpreterResultMessage> result1 = Lists.newArrayList();
@@ -298,5 +302,4 @@ public class ParagraphTest extends AbstractInterpreterTest {
       assertEquals(data.getRight(), actual);
     }
   }
-
 }

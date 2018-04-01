@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.rest;
-
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.realm.Realm;
@@ -76,7 +74,7 @@ public class SecurityRestApi {
     if ("anonymous".equals(principal))
       ticket = "anonymous";
     else
-      ticket = TicketContainer.instance.getTicket(principal);
+      ticket = TicketContainer.INSTANCE.getTicket(principal);
 
     Map<String, String> data = new HashMap<>();
     data.put("principal", principal);
@@ -97,7 +95,6 @@ public class SecurityRestApi {
   @GET
   @Path("userlist/{searchText}")
   public Response getUserList(@PathParam("searchText") final String searchText) {
-
     List<String> usersList = new ArrayList<>();
     List<String> rolesList = new ArrayList<>();
     try {
@@ -165,8 +162,6 @@ public class SecurityRestApi {
     returnListMap.put("users", autoSuggestUserList);
     returnListMap.put("roles", autoSuggestRoleList);
 
-
     return new JsonResponse<>(Response.Status.OK, "", returnListMap).build();
   }
-
 }

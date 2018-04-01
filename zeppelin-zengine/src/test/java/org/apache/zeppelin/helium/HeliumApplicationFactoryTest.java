@@ -16,6 +16,18 @@
  */
 package org.apache.zeppelin.helium;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.zeppelin.conf.ZeppelinConfiguration;
 import org.apache.zeppelin.interpreter.AbstractInterpreterTest;
 import org.apache.zeppelin.interpreter.Interpreter;
@@ -30,27 +42,15 @@ import org.apache.zeppelin.notebook.Notebook;
 import org.apache.zeppelin.notebook.NotebookAuthorization;
 import org.apache.zeppelin.notebook.Paragraph;
 import org.apache.zeppelin.notebook.ParagraphJobListener;
-//import org.apache.zeppelin.notebook.repo.VFSNotebookRepo;
 import org.apache.zeppelin.notebook.repo.NotebookRepo;
 import org.apache.zeppelin.scheduler.Job;
 import org.apache.zeppelin.scheduler.SchedulerFactory;
 import org.apache.zeppelin.search.SearchService;
 import org.apache.zeppelin.user.AuthenticationInfo;
 import org.apache.zeppelin.user.Credentials;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-
-public class HeliumApplicationFactoryTest extends AbstractInterpreterTest implements JobListenerFactory {
-
+public class HeliumApplicationFactoryTest extends AbstractInterpreterTest
+        implements JobListenerFactory {
   private SchedulerFactory schedulerFactory;
   private NotebookRepo notebookRepo;
   private Notebook notebook;
@@ -59,7 +59,8 @@ public class HeliumApplicationFactoryTest extends AbstractInterpreterTest implem
 
   @Before
   public void setUp() throws Exception {
-    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_INTERPRETER_GROUP_ORDER.getVarName(), "mock1,mock2");
+    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_INTERPRETER_GROUP_ORDER.getVarName(),
+            "mock1,mock2");
     super.setUp();
 
     this.schedulerFactory = SchedulerFactory.singleton();
@@ -95,10 +96,8 @@ public class HeliumApplicationFactoryTest extends AbstractInterpreterTest implem
     super.tearDown();
   }
 
-
   @Test
-  public void testLoadRunUnloadApplication()
-      throws IOException, ApplicationException, InterruptedException {
+  public void testLoadRunUnloadApplication() throws IOException, InterruptedException {
     // given
     HeliumPackage pkg1 = new HeliumPackage(HeliumType.APPLICATION,
         "name1",
@@ -109,7 +108,8 @@ public class HeliumApplicationFactoryTest extends AbstractInterpreterTest implem
         "", "");
 
     Note note1 = notebook.createNote(anonymous);
-    interpreterSettingManager.setInterpreterBinding("user", note1.getId(),interpreterSettingManager.getInterpreterSettingIds());
+    interpreterSettingManager.setInterpreterBinding("user", note1.getId(),
+            interpreterSettingManager.getInterpreterSettingIds());
 
     Paragraph p1 = note1.addNewParagraph(AuthenticationInfo.ANONYMOUS);
 
@@ -117,7 +117,9 @@ public class HeliumApplicationFactoryTest extends AbstractInterpreterTest implem
     p1.setText("%mock1 job");
     p1.setAuthenticationInfo(anonymous);
     note1.run(p1.getId());
-    while(p1.isTerminated()==false || p1.getResult()==null) Thread.yield();
+    while (p1.isTerminated() == false || p1.getResult() == null) {
+      Thread.yield();
+    }
 
     assertEquals("repl1: job", p1.getResult().message().get(0).getData());
 
@@ -155,7 +157,8 @@ public class HeliumApplicationFactoryTest extends AbstractInterpreterTest implem
         "", "");
 
     Note note1 = notebook.createNote(anonymous);
-    interpreterSettingManager.setInterpreterBinding("user", note1.getId(), interpreterSettingManager.getInterpreterSettingIds());
+    interpreterSettingManager.setInterpreterBinding("user", note1.getId(),
+            interpreterSettingManager.getInterpreterSettingIds());
 
     Paragraph p1 = note1.addNewParagraph(AuthenticationInfo.ANONYMOUS);
 
@@ -163,7 +166,9 @@ public class HeliumApplicationFactoryTest extends AbstractInterpreterTest implem
     p1.setText("%mock1 job");
     p1.setAuthenticationInfo(anonymous);
     note1.run(p1.getId());
-    while(p1.isTerminated()==false || p1.getResult()==null) Thread.yield();
+    while (p1.isTerminated() == false || p1.getResult() == null) {
+      Thread.yield();
+    }
 
     assertEquals(0, p1.getAllApplicationStates().size());
     String appId = heliumAppFactory.loadAndRun(pkg1, p1);
@@ -182,7 +187,6 @@ public class HeliumApplicationFactoryTest extends AbstractInterpreterTest implem
     notebook.removeNote(note1.getId(), anonymous);
   }
 
-
   @Test
   public void testUnloadOnInterpreterUnbind() throws IOException {
     // given
@@ -195,7 +199,8 @@ public class HeliumApplicationFactoryTest extends AbstractInterpreterTest implem
         "", "");
 
     Note note1 = notebook.createNote(anonymous);
-    notebook.bindInterpretersToNote("user", note1.getId(), interpreterSettingManager.getInterpreterSettingIds());
+    notebook.bindInterpretersToNote("user", note1.getId(),
+            interpreterSettingManager.getInterpreterSettingIds());
 
     Paragraph p1 = note1.addNewParagraph(AuthenticationInfo.ANONYMOUS);
 
@@ -203,7 +208,9 @@ public class HeliumApplicationFactoryTest extends AbstractInterpreterTest implem
     p1.setText("%mock1 job");
     p1.setAuthenticationInfo(anonymous);
     note1.run(p1.getId());
-    while(p1.isTerminated()==false || p1.getResult()==null) Thread.yield();
+    while (p1.isTerminated() == false || p1.getResult() == null) {
+      Thread.yield();
+    }
 
     assertEquals(0, p1.getAllApplicationStates().size());
     String appId = heliumAppFactory.loadAndRun(pkg1, p1);
@@ -237,7 +244,7 @@ public class HeliumApplicationFactoryTest extends AbstractInterpreterTest implem
       intp = p1.getBindedInterpreter();
       fail("Should throw InterpreterNotFoundException");
     } catch (InterpreterNotFoundException e) {
-
+      LOGGER.debug("ignored exception", e);
     }
 
     // Unbind all interpreter from note
@@ -247,7 +254,6 @@ public class HeliumApplicationFactoryTest extends AbstractInterpreterTest implem
     // remove note
     notebook.removeNote(note1.getId(), anonymous);
   }
-
 
   @Test
   public void testUnloadOnInterpreterRestart() throws IOException, InterpreterException {
@@ -261,7 +267,8 @@ public class HeliumApplicationFactoryTest extends AbstractInterpreterTest implem
         "", "");
 
     Note note1 = notebook.createNote(anonymous);
-    notebook.bindInterpretersToNote("user", note1.getId(), interpreterSettingManager.getInterpreterSettingIds());
+    notebook.bindInterpretersToNote("user", note1.getId(),
+            interpreterSettingManager.getInterpreterSettingIds());
     String mock1IntpSettingId = null;
     for (InterpreterSetting setting : notebook.getBindedInterpreterSettings(note1.getId())) {
       if (setting.getName().equals("mock1")) {
@@ -276,7 +283,9 @@ public class HeliumApplicationFactoryTest extends AbstractInterpreterTest implem
     p1.setText("%mock1 job");
     p1.setAuthenticationInfo(anonymous);
     note1.run(p1.getId());
-    while(p1.isTerminated()==false || p1.getResult()==null) Thread.yield();
+    while (p1.isTerminated() == false || p1.getResult() == null) {
+      Thread.yield();
+    }
     assertEquals(0, p1.getAllApplicationStates().size());
     String appId = heliumAppFactory.loadAndRun(pkg1, p1);
     ApplicationState app = p1.getApplicationState(appId);
@@ -304,27 +313,22 @@ public class HeliumApplicationFactoryTest extends AbstractInterpreterTest implem
     return new ParagraphJobListener() {
       @Override
       public void onOutputAppend(Paragraph paragraph, int idx, String output) {
-
       }
 
       @Override
       public void onOutputUpdate(Paragraph paragraph, int idx, InterpreterResultMessage msg) {
-
       }
 
       @Override
       public void onOutputUpdateAll(Paragraph paragraph, List<InterpreterResultMessage> msgs) {
-
       }
 
       @Override
       public void onProgressUpdate(Job job, int progress) {
-
       }
 
       @Override
       public void onStatusChange(Job job, Job.Status before, Job.Status after) {
-
       }
     };
   }

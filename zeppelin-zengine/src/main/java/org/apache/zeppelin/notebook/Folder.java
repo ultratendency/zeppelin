@@ -14,14 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.notebook;
 
 import com.google.common.collect.Sets;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Represents a folder of Notebook. ID of the folder is a normalized path of it.
@@ -55,8 +60,9 @@ public class Folder {
   }
 
   public String getName() {
-    if (isRoot())
+    if (isRoot()) {
       return ROOT_FOLDER_ID;
+    }
 
     String path = getId();
 
@@ -69,8 +75,9 @@ public class Folder {
   }
 
   public String getParentFolderId() {
-    if (isRoot())
+    if (isRoot()) {
       return ROOT_FOLDER_ID;
+    }
 
     int lastSlashIndex = getId().lastIndexOf("/");
     // The root folder
@@ -104,13 +111,14 @@ public class Folder {
   }
 
   /**
-   * Rename this folder as well as the notes and the children belong to it
+   * Rename this folder as well as the notes and the children belong to it.
    *
    * @param newId
    */
   public void rename(String newId) {
-    if (isRoot())   // root folder cannot be renamed
+    if (isRoot()) { // root folder cannot be renamed
       return;
+    }
 
     String oldId = getId();
     id = normalizeFolderId(newId);
@@ -138,7 +146,7 @@ public class Folder {
   }
 
   /**
-   * Merge folder's notes and child folders
+   * Merge folder's notes and child folders.
    *
    * @param folder
    */
@@ -171,8 +179,10 @@ public class Folder {
   }
 
   public void addChild(Folder child) {
-    if (child == this) // prevent the root folder from setting itself as child
+    if (child == this) { // prevent the root folder from setting itself as child
       return;
+    }
+
     children.put(child.getId(), child);
   }
 
@@ -218,7 +228,7 @@ public class Folder {
   }
 
   public List<Note> getNotesRecursively(Set<String> userAndRoles,
-      NotebookAuthorization notebookAuthorization) {
+          NotebookAuthorization notebookAuthorization) {
     final Set<String> entities = Sets.newHashSet();
     if (userAndRoles != null) {
       entities.addAll(userAndRoles);
@@ -249,8 +259,9 @@ public class Folder {
   }
 
   public boolean isTrash() {
-    if (isRoot())
+    if (isRoot()) {
       return false;
+    }
 
     return getId().split("/")[0].equals(TRASH_FOLDER_ID);
   }

@@ -65,7 +65,6 @@ public class ZeppelinHubRepo implements NotebookRepoWithVersionControl {
   private ZeppelinConfiguration conf;
 
   public ZeppelinHubRepo() {
-
   }
 
   public ZeppelinHubRepo(ZeppelinConfiguration conf) {
@@ -232,7 +231,7 @@ public class ZeppelinHubRepo implements NotebookRepoWithVersionControl {
 
   @Override
   public Revision checkpoint(String noteId, String checkpointMsg, AuthenticationInfo subject)
-      throws IOException {
+          throws IOException {
     if (StringUtils.isBlank(noteId) || !isSubjectValid(subject)) {
       return Revision.EMPTY;
     }
@@ -291,7 +290,7 @@ public class ZeppelinHubRepo implements NotebookRepoWithVersionControl {
 
     List<NotebookRepoSettingsInfo> settings = Lists.newArrayList();
     String user = subject.getUser();
-    String zeppelinHubUserSession = UserSessionContainer.instance.getSession(user);
+    String zeppelinHubUserSession = UserSessionContainer.INSTANCE.getSession(user);
     String userToken = getUserToken(user);
     List<Instance> instances;
     List<Map<String, String>> values = Lists.newLinkedList();
@@ -328,9 +327,10 @@ public class ZeppelinHubRepo implements NotebookRepoWithVersionControl {
     }
 
     LOG.info("User {} will switch instance", user);
-    String ticket = UserSessionContainer.instance.getSession(user);
+    String ticket = UserSessionContainer.INSTANCE.getSession(user);
     List<Instance> instances;
-    String currentToken = StringUtils.EMPTY, targetToken = StringUtils.EMPTY;
+    String currentToken;
+    String targetToken = StringUtils.EMPTY;
     try {
       instances = tokenManager.getUserInstances(ticket);
       if (instances.isEmpty()) {
@@ -377,7 +377,7 @@ public class ZeppelinHubRepo implements NotebookRepoWithVersionControl {
 
   @Override
   public Note setNoteRevision(String noteId, String revId, AuthenticationInfo subject)
-      throws IOException {
+          throws IOException {
     // Auto-generated method stub
     return null;
   }

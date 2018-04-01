@@ -17,10 +17,11 @@
 package org.apache.zeppelin.helium;
 
 import com.google.gson.Gson;
+
 import org.apache.zeppelin.common.JsonSerializable;
 
 /**
- * Represetns webpack json format result
+ * Represents webpack json format result.
  */
 public class WebpackResult implements JsonSerializable {
   private static final Gson gson = new Gson();

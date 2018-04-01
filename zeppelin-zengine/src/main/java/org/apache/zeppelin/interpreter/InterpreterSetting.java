@@ -14,8 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter;
+
+import static org.apache.zeppelin.conf.ZeppelinConfiguration.ConfVars.ZEPPELIN_INTERPRETER_MAX_POOL_SIZE;
+import static org.apache.zeppelin.conf.ZeppelinConfiguration.ConfVars.ZEPPELIN_INTERPRETER_OUTPUT_LIMIT;
+import static org.apache.zeppelin.util.IdHashes.generateId;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -25,8 +28,26 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.internal.StringMap;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import org.apache.zeppelin.conf.ZeppelinConfiguration;
 import org.apache.zeppelin.dep.Dependency;
 import org.apache.zeppelin.dep.DependencyResolver;
@@ -45,32 +66,11 @@ import org.apache.zeppelin.interpreter.remote.RemoteInterpreter;
 import org.apache.zeppelin.interpreter.remote.RemoteInterpreterEventPoller;
 import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcess;
 import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcessListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import static org.apache.zeppelin.conf.ZeppelinConfiguration.ConfVars.ZEPPELIN_INTERPRETER_MAX_POOL_SIZE;
-import static org.apache.zeppelin.conf.ZeppelinConfiguration.ConfVars.ZEPPELIN_INTERPRETER_OUTPUT_LIMIT;
-import static org.apache.zeppelin.util.IdHashes.generateId;
 
 /**
- * Represent one InterpreterSetting in the interpreter setting page
+ * Represent one InterpreterSetting in the interpreter setting page.
  */
 public class InterpreterSetting {
-
   private static final Logger LOGGER = LoggerFactory.getLogger(InterpreterSetting.class);
   private static final String SHARED_PROCESS = "shared_process";
   private static final String SHARED_SESSION = "shared_session";
@@ -138,13 +138,11 @@ public class InterpreterSetting {
   private transient LifecycleManager lifecycleManager;
   ///////////////////////////////////////////////////////////////////////////////////////////
 
-
-
   private transient RecoveryStorage recoveryStorage;
   ///////////////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * Builder class for InterpreterSetting
+   * Builder class for InterpreterSetting.
    */
   public static class Builder {
     private InterpreterSetting interpreterSetting;
@@ -214,19 +212,19 @@ public class InterpreterSetting {
     }
 
     public Builder setIntepreterSettingManager(
-        InterpreterSettingManager interpreterSettingManager) {
+            InterpreterSettingManager interpreterSettingManager) {
       interpreterSetting.interpreterSettingManager = interpreterSettingManager;
       return this;
     }
 
-    public Builder setRemoteInterpreterProcessListener(RemoteInterpreterProcessListener
-                                                       remoteInterpreterProcessListener) {
+    public Builder setRemoteInterpreterProcessListener(
+            RemoteInterpreterProcessListener remoteInterpreterProcessListener) {
       interpreterSetting.remoteInterpreterProcessListener = remoteInterpreterProcessListener;
       return this;
     }
 
     public Builder setAngularObjectRegistryListener(
-        AngularObjectRegistryListener angularObjectRegistryListener) {
+            AngularObjectRegistryListener angularObjectRegistryListener) {
       interpreterSetting.angularObjectRegistryListener = angularObjectRegistryListener;
       return this;
     }
@@ -276,7 +274,7 @@ public class InterpreterSetting {
   }
 
   /**
-   * Create interpreter from InterpreterSettingTemplate
+   * Create interpreter from InterpreterSettingTemplate.
    *
    * @param o interpreterSetting from InterpreterSettingTemplate
    */
@@ -285,8 +283,7 @@ public class InterpreterSetting {
     this.id = o.name;
     this.name = o.name;
     this.group = o.group;
-    this.properties = convertInterpreterProperties(
-        (Map<String, DefaultInterpreterProperty>) o.getProperties());
+    this.properties = convertInterpreterProperties(o.getProperties());
     this.interpreterInfos = new ArrayList<>(o.getInterpreterInfos());
     this.option = InterpreterOption.fromInterpreterOption(o.getOption());
     this.dependencies = new ArrayList<>(o.getDependencies());
@@ -323,8 +320,8 @@ public class InterpreterSetting {
     return interpreterSettingManager;
   }
 
-  public InterpreterSetting setAngularObjectRegistryListener(AngularObjectRegistryListener
-                                                   angularObjectRegistryListener) {
+  public InterpreterSetting setAngularObjectRegistryListener(
+          AngularObjectRegistryListener angularObjectRegistryListener) {
     this.angularObjectRegistryListener = angularObjectRegistryListener;
     return this;
   }
@@ -334,8 +331,8 @@ public class InterpreterSetting {
     return this;
   }
 
-  public InterpreterSetting setRemoteInterpreterProcessListener(RemoteInterpreterProcessListener
-                                                      remoteInterpreterProcessListener) {
+  public InterpreterSetting setRemoteInterpreterProcessListener(
+          RemoteInterpreterProcessListener remoteInterpreterProcessListener) {
     this.remoteInterpreterProcessListener = remoteInterpreterProcessListener;
     return this;
   }
@@ -346,7 +343,7 @@ public class InterpreterSetting {
   }
 
   public InterpreterSetting setInterpreterSettingManager(
-      InterpreterSettingManager interpreterSettingManager) {
+          InterpreterSettingManager interpreterSettingManager) {
     this.interpreterSettingManager = interpreterSettingManager;
     return this;
   }
@@ -503,7 +500,6 @@ public class InterpreterSetting {
     }
   }
 
-
   public Object getProperties() {
     return properties;
   }
@@ -605,7 +601,7 @@ public class InterpreterSetting {
   }
 
   /***
-   * Interpreter status
+   * Interpreter status.
    */
   public enum Status {
     DOWNLOADING_DEPENDENCIES,
@@ -669,7 +665,6 @@ public class InterpreterSetting {
     runtimeInfosToBeCleared = null;
   }
 
-
   //////////////////////////// IMPORTANT ////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////////
@@ -704,9 +699,7 @@ public class InterpreterSetting {
   }
 
   synchronized RemoteInterpreterProcess createInterpreterProcess(String interpreterGroupId,
-                                                                 String userName,
-                                                                 Properties properties)
-      throws IOException {
+          String userName, Properties properties) throws IOException {
     if (launcher == null) {
       createLauncher();
     }
@@ -780,14 +773,14 @@ public class InterpreterSetting {
   }
 
   /**
-   * Throw exception when interpreter process has already launched
+   * Throw exception when interpreter process has already launched.
    *
    * @param interpreterGroupId
    * @param properties
    * @throws IOException
    */
   public void setInterpreterGroupProperties(String interpreterGroupId, Properties properties)
-      throws IOException {
+          throws IOException {
     ManagedInterpreterGroup interpreterGroup = this.interpreterGroups.get(interpreterGroupId);
     for (List<Interpreter> session : interpreterGroup.sessions.values()) {
       for (Interpreter intp : session) {
@@ -888,7 +881,6 @@ public class InterpreterSetting {
         }
       }
       return newProperties;
-
     } else if (properties instanceof Map) {
       Map<String, Object> dProperties =
           (Map<String, Object>) properties;
@@ -910,8 +902,8 @@ public class InterpreterSetting {
           InterpreterProperty property = new InterpreterProperty(
               key,
               dProperty.getValue(),
-              dProperty.getType() != null ? dProperty.getType() : "string"
               // in case user forget to specify type in interpreter-setting.json
+              dProperty.getType() != null ? dProperty.getType() : "string"
           );
           newProperties.put(key, property);
         } else if (value instanceof String) {

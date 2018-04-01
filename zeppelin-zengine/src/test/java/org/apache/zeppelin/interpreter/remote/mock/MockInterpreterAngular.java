@@ -14,8 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter.remote.mock;
+
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.zeppelin.display.AngularObjectRegistry;
 import org.apache.zeppelin.display.AngularObjectWatcher;
@@ -25,12 +28,7 @@ import org.apache.zeppelin.interpreter.InterpreterResult;
 import org.apache.zeppelin.interpreter.InterpreterResult.Code;
 import org.apache.zeppelin.interpreter.thrift.InterpreterCompletion;
 
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class MockInterpreterAngular extends Interpreter {
-
   AtomicInteger numWatch = new AtomicInteger(0);
 
   public MockInterpreterAngular(Properties property) {
@@ -43,7 +41,6 @@ public class MockInterpreterAngular extends Interpreter {
 
   @Override
   public void close() {
-
   }
 
   @Override
@@ -63,16 +60,13 @@ public class MockInterpreterAngular extends Interpreter {
 
     if (cmd.equals("add")) {
       registry.add(name, value, context.getNoteId(), null);
-      registry.get(name, context.getNoteId(), null).addWatcher(new AngularObjectWatcher
-              (null) {
-
-        @Override
-        public void watch(Object oldObject, Object newObject,
-            InterpreterContext context) {
-          numWatch.incrementAndGet();
-        }
-
-      });
+      registry.get(name, context.getNoteId(), null).addWatcher(
+              new AngularObjectWatcher(null) {
+          @Override
+          public void watch(Object oldObject, Object newObject, InterpreterContext context) {
+            numWatch.incrementAndGet();
+          }
+        });
     } else if (cmd.equalsIgnoreCase("update")) {
       registry.get(name, context.getNoteId(), null).set(value);
     } else if (cmd.equals("remove")) {

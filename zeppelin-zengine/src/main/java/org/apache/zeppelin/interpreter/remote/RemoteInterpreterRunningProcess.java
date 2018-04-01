@@ -16,13 +16,13 @@
  */
 package org.apache.zeppelin.interpreter.remote;
 
-import org.apache.zeppelin.helium.ApplicationEventListener;
-import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterService;
+
 /**
- * This class connects to existing process
+ * This class connects to existing process.
  */
 public class RemoteInterpreterRunningProcess extends RemoteInterpreterProcess {
   private final Logger logger = LoggerFactory.getLogger(RemoteInterpreterRunningProcess.class);
@@ -30,12 +30,8 @@ public class RemoteInterpreterRunningProcess extends RemoteInterpreterProcess {
   private final int port;
   private final String interpreterSettingName;
 
-  public RemoteInterpreterRunningProcess(
-      String interpreterSettingName,
-      int connectTimeout,
-      String host,
-      int port
-  ) {
+  public RemoteInterpreterRunningProcess(String interpreterSettingName, int connectTimeout,
+          String host, int port) {
     super(connectTimeout);
     this.interpreterSettingName = interpreterSettingName;
     this.host = host;

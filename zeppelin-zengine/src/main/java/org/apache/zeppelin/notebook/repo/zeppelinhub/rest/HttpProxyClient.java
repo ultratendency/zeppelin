@@ -16,15 +16,6 @@
  */
 package org.apache.zeppelin.notebook.repo.zeppelinhub.rest;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
-import javax.net.ssl.SSLContext;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
@@ -55,14 +46,22 @@ import org.apache.http.nio.reactor.IOReactorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import javax.net.ssl.SSLContext;
+
 /**
- * This is http client class for the case of proxy usage
+ * This is http client class for the case of proxy usage.
  * jetty-client has issue with https over proxy for 9.2.x
  *   https://github.com/eclipse/jetty.project/issues/408
  *   https://github.com/eclipse/jetty.project/issues/827
  *    
  */
-
 public class HttpProxyClient {
   private static final Logger LOG = LoggerFactory.getLogger(HttpProxyClient.class);
   public static final String ZEPPELIN_TOKEN_HEADER = "X-Zeppelin-Token";
@@ -103,8 +102,8 @@ public class HttpProxyClient {
   }
   
   private PoolingNHttpClientConnectionManager getAsyncConnectionManager() {
-    ConnectingIOReactor ioReactor = null;
-    PoolingNHttpClientConnectionManager cm = null;
+    ConnectingIOReactor ioReactor;
+    PoolingNHttpClientConnectionManager cm;
     try {
       ioReactor = new DefaultConnectingIOReactor();
       // ssl setup
@@ -128,14 +127,14 @@ public class HttpProxyClient {
   private HttpAsyncClientBuilder setRedirects(HttpAsyncClientBuilder clientBuilder) {
     clientBuilder.setRedirectStrategy(new DefaultRedirectStrategy() {
       /** Redirectable methods. */
-      private String[] REDIRECT_METHODS = new String[] { 
-        HttpGet.METHOD_NAME, HttpPost.METHOD_NAME, 
-        HttpPut.METHOD_NAME, HttpDelete.METHOD_NAME, HttpHead.METHOD_NAME 
+      private String[] redirectMethods = new String[] {
+          HttpGet.METHOD_NAME, HttpPost.METHOD_NAME,
+          HttpPut.METHOD_NAME, HttpDelete.METHOD_NAME, HttpHead.METHOD_NAME
       };
 
       @Override
       protected boolean isRedirectable(String method) {
-        for (String m : REDIRECT_METHODS) {
+        for (String m : redirectMethods) {
           if (m.equalsIgnoreCase(method)) {
             return true;
           }
@@ -151,16 +150,15 @@ public class HttpProxyClient {
     return withResponse ?
         sendAndGetResponse(request) : sendWithoutResponseBody(request);
   }
-  
 
-  private String sendWithoutResponseBody(HttpRequestBase request) throws IOException {
+  private String sendWithoutResponseBody(HttpRequestBase request) {
     FutureCallback<HttpResponse> callback = getCallback(request);
     client.execute(request, callback);
     return StringUtils.EMPTY;
   }
   
   private String sendAndGetResponse(HttpRequestBase request) throws IOException {
-    String data = StringUtils.EMPTY;
+    String data;
     try {
       HttpResponse response = client.execute(request, null).get(30, TimeUnit.SECONDS);
       int code = response.getStatusLine().getStatusCode();
@@ -182,7 +180,6 @@ public class HttpProxyClient {
   
   private FutureCallback<HttpResponse> getCallback(final HttpRequestBase request) {
     return new FutureCallback<HttpResponse>() {
-
       public void completed(final HttpResponse response) {
         request.releaseConnection();
         LOG.info("Note {} completed with {} status", request.getMethod(),

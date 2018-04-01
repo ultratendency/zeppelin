@@ -17,17 +17,17 @@
 package org.apache.zeppelin.interpreter.remote;
 
 import com.google.gson.Gson;
+
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.thrift.TException;
-import org.apache.zeppelin.helium.ApplicationEventListener;
-import org.apache.zeppelin.interpreter.InterpreterException;
-import org.apache.zeppelin.interpreter.launcher.InterpreterClient;
-import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterService.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.zeppelin.interpreter.launcher.InterpreterClient;
+import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterService.Client;
+
 /**
- * Abstract class for interpreter process
+ * Abstract class for interpreter process.
  */
 public abstract class RemoteInterpreterProcess implements InterpreterClient {
   private static final Logger logger = LoggerFactory.getLogger(RemoteInterpreterProcess.class);
@@ -37,8 +37,7 @@ public abstract class RemoteInterpreterProcess implements InterpreterClient {
   private final InterpreterContextRunnerPool interpreterContextRunnerPool;
   private int connectTimeout;
 
-  public RemoteInterpreterProcess(
-      int connectTimeout) {
+  public RemoteInterpreterProcess(int connectTimeout) {
     this.interpreterContextRunnerPool = new InterpreterContextRunnerPool();
     this.connectTimeout = connectTimeout;
   }
@@ -87,8 +86,8 @@ public abstract class RemoteInterpreterProcess implements InterpreterClient {
   }
 
   /**
-   * Called when angular object is updated in client side to propagate
-   * change to the remote process
+   * Called when angular object is updated in client side to propagate change to the remote process.
+   *
    * @param name
    * @param o
    */
@@ -147,10 +146,6 @@ public abstract class RemoteInterpreterProcess implements InterpreterClient {
     return null;
   }
 
-  /**
-   *
-   * @param <T>
-   */
   public interface RemoteFunction<T> {
     T call(Client client) throws Exception;
   }

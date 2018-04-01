@@ -1,17 +1,3 @@
-package org.apache.zeppelin.interpreter.install;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.zeppelin.conf.ZeppelinConfiguration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.File;
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -28,6 +14,21 @@ import static org.junit.Assert.assertTrue;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.zeppelin.interpreter.install;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.zeppelin.conf.ZeppelinConfiguration;
+
 public class InstallInterpreterTest {
   private File tmpDir;
   private InstallInterpreter installer;
@@ -35,7 +36,8 @@ public class InstallInterpreterTest {
 
   @Before
   public void setUp() throws IOException {
-    tmpDir = new File(System.getProperty("java.io.tmpdir")+"/ZeppelinLTest_"+System.currentTimeMillis());
+    tmpDir = new File(System.getProperty("java.io.tmpdir") + "/ZeppelinLTest_" +
+            System.currentTimeMillis());
     new File(tmpDir, "conf").mkdirs();
     interpreterBaseDir = new File(tmpDir, "interpreter");
     File localRepoDir = new File(tmpDir, "local-repo");
@@ -44,9 +46,9 @@ public class InstallInterpreterTest {
 
     File interpreterListFile = new File(tmpDir, "conf/interpreter-list");
 
-
     // create interpreter list file
-    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_HOME.getVarName(), tmpDir.getAbsolutePath());
+    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_HOME.getVarName(),
+            tmpDir.getAbsolutePath());
 
     String interpreterList = "";
     interpreterList += "intp1   org.apache.commons:commons-csv:1.1   test interpreter 1\n";
@@ -62,7 +64,6 @@ public class InstallInterpreterTest {
   public void tearDown() throws IOException {
     FileUtils.deleteDirectory(tmpDir);
   }
-
 
   @Test
   public void testList() {

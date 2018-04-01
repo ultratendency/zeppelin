@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.notebook;
 
 import static java.lang.String.format;
@@ -23,6 +22,11 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,7 +38,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang.StringUtils;
+
 import org.apache.zeppelin.common.JsonSerializable;
 import org.apache.zeppelin.completer.CompletionType;
 import org.apache.zeppelin.conf.ZeppelinConfiguration;
@@ -51,19 +55,15 @@ import org.apache.zeppelin.interpreter.InterpreterSettingManager;
 import org.apache.zeppelin.interpreter.remote.RemoteAngularObjectRegistry;
 import org.apache.zeppelin.interpreter.thrift.InterpreterCompletion;
 import org.apache.zeppelin.notebook.repo.NotebookRepo;
-import org.apache.zeppelin.notebook.repo.NotebookRepoSync;
-import org.apache.zeppelin.notebook.repo.NotebookRepoWithVersionControl;
 import org.apache.zeppelin.notebook.utility.IdHashes;
 import org.apache.zeppelin.scheduler.Job;
 import org.apache.zeppelin.scheduler.Job.Status;
 import org.apache.zeppelin.search.SearchService;
 import org.apache.zeppelin.user.AuthenticationInfo;
 import org.apache.zeppelin.user.Credentials;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * Binded interpreters for a note
+ * Binded interpreters for a note.
  */
 public class Note implements ParagraphJobListener, JsonSerializable {
   private static final Logger logger = LoggerFactory.getLogger(Note.class);
@@ -89,7 +89,6 @@ public class Note implements ParagraphJobListener, JsonSerializable {
   private String id;
   private Map<String, Object> noteParams = new HashMap<>();
   private LinkedHashMap<String, Input> noteForms = new LinkedHashMap<>();
-
 
   private transient ZeppelinConfiguration conf = ZeppelinConfiguration.create();
 
@@ -117,14 +116,13 @@ public class Note implements ParagraphJobListener, JsonSerializable {
    */
   private Map<String, Object> info = new HashMap<>();
 
-
   public Note() {
     generateId();
   }
 
   public Note(NotebookRepo repo, InterpreterFactory factory,
-      InterpreterSettingManager interpreterSettingManager, JobListenerFactory jlFactory,
-      SearchService noteIndex, Credentials credentials, NoteEventListener noteEventListener) {
+          InterpreterSettingManager interpreterSettingManager, JobListenerFactory jlFactory,
+          SearchService noteIndex, Credentials credentials, NoteEventListener noteEventListener) {
     this.repo = repo;
     this.factory = factory;
     this.interpreterSettingManager = interpreterSettingManager;
@@ -145,7 +143,8 @@ public class Note implements ParagraphJobListener, JsonSerializable {
   }
 
   public void setPersonalizedMode(Boolean value) {
-    String valueString = StringUtils.EMPTY;
+    String valueString;
+
     if (value) {
       valueString = "true";
     } else {
@@ -214,8 +213,9 @@ public class Note implements ParagraphJobListener, JsonSerializable {
     String notePath = getName();
 
     // Ignore first '/'
-    if (notePath.charAt(0) == '/')
+    if (notePath.charAt(0) == '/') {
       notePath = notePath.substring(1);
+    }
 
     int lastSlashIndex = notePath.lastIndexOf("/");
     // The root folder
@@ -339,7 +339,6 @@ public class Note implements ParagraphJobListener, JsonSerializable {
     this.credentials = credentials;
   }
 
-
   Map<String, List<AngularObject>> getAngularObjects() {
     return angularObjects;
   }
@@ -357,7 +356,6 @@ public class Note implements ParagraphJobListener, JsonSerializable {
    * @param srcParagraph source paragraph
    */
   void addCloneParagraph(Paragraph srcParagraph, AuthenticationInfo subject) {
-
     // Keep paragraph original ID
     final Paragraph newParagraph = new Paragraph(srcParagraph.getId(), this, this, factory);
 
@@ -495,7 +493,7 @@ public class Note implements ParagraphJobListener, JsonSerializable {
   }
 
   /**
-   * Clear all paragraph output of note
+   * Clear all paragraph output of note.
    */
   public void clearAllParagraphOutput() {
     synchronized (paragraphs) {
@@ -562,7 +560,8 @@ public class Note implements ParagraphJobListener, JsonSerializable {
       }
       return false;
     }
-    /** because empty list, cannot remove nothing right? */
+
+    // because empty list, cannot remove nothing right?
     return true;
   }
 
@@ -683,7 +682,7 @@ public class Note implements ParagraphJobListener, JsonSerializable {
   }
 
   /**
-   * Check whether all paragraphs belongs to this note has terminated
+   * Check whether all paragraphs belongs to this note has terminated.
    */
   boolean isTerminated() {
     synchronized (paragraphs) {
@@ -698,7 +697,7 @@ public class Note implements ParagraphJobListener, JsonSerializable {
   }
 
   /**
-   * Return true if there is a running or pending paragraph
+   * Return true if there is a running or pending paragraph.
    */
   boolean isRunningOrPending() {
     synchronized (paragraphs) {
@@ -827,7 +826,6 @@ public class Note implements ParagraphJobListener, JsonSerializable {
   void unpersist(AuthenticationInfo subject) throws IOException {
     repo.remove(getId(), subject);
   }
-
 
   /**
    * Return new note for specific user. this inserts and replaces user paragraph which doesn't
@@ -1034,7 +1032,6 @@ public class Note implements ParagraphJobListener, JsonSerializable {
       return false;
     }
     return info != null ? info.equals(note.info) : note.info == null;
-
   }
 
   @Override

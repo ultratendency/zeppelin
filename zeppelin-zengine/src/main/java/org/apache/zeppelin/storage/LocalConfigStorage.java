@@ -14,13 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.storage;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.zeppelin.conf.ZeppelinConfiguration;
-import org.apache.zeppelin.interpreter.InterpreterInfoSaving;
-import org.apache.zeppelin.notebook.NotebookAuthorizationInfoSaving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,13 +25,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.apache.zeppelin.conf.ZeppelinConfiguration;
+import org.apache.zeppelin.interpreter.InterpreterInfoSaving;
+import org.apache.zeppelin.notebook.NotebookAuthorizationInfoSaving;
 
 /**
- * Storing config in local file system
+ * Storing config in local file system.
  */
 public class LocalConfigStorage extends ConfigStorage {
-
-  private static Logger LOGGER = LoggerFactory.getLogger(LocalConfigStorage.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(LocalConfigStorage.class);
 
   private File interpreterSettingPath;
   private File authorizationPath;
@@ -107,5 +105,4 @@ public class LocalConfigStorage extends ConfigStorage {
     IOUtils.write(content, out);
     out.close();
   }
-
 }

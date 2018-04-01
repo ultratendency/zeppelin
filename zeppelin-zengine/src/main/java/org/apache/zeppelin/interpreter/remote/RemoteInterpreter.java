@@ -14,13 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter.remote;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.zeppelin.conf.ZeppelinConfiguration;
 import org.apache.zeppelin.display.AngularObject;
 import org.apache.zeppelin.display.AngularObjectRegistry;
@@ -43,22 +51,13 @@ import org.apache.zeppelin.scheduler.Job;
 import org.apache.zeppelin.scheduler.RemoteScheduler;
 import org.apache.zeppelin.scheduler.Scheduler;
 import org.apache.zeppelin.scheduler.SchedulerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 /**
- * Proxy for Interpreter instance that runs on separate process
+ * Proxy for Interpreter instance that runs on separate process.
  */
 public class RemoteInterpreter extends Interpreter {
   private static final Logger LOGGER = LoggerFactory.getLogger(RemoteInterpreter.class);
   private static final Gson gson = new Gson();
-
 
   private String className;
   private String sessionId;
@@ -71,13 +70,10 @@ public class RemoteInterpreter extends Interpreter {
   private LifecycleManager lifecycleManager;
 
   /**
-   * Remote interpreter and manage interpreter process
+   * Remote interpreter and manage interpreter process.
    */
-  public RemoteInterpreter(Properties properties,
-                           String sessionId,
-                           String className,
-                           String userName,
-                           LifecycleManager lifecycleManager) {
+  public RemoteInterpreter(Properties properties, String sessionId, String className,
+          String userName, LifecycleManager lifecycleManager) {
     super(properties);
     this.sessionId = sessionId;
     this.className = className;
@@ -176,11 +172,10 @@ public class RemoteInterpreter extends Interpreter {
     }
   }
 
-
   @Override
   public void close() throws InterpreterException {
     if (isOpened) {
-      RemoteInterpreterProcess interpreterProcess = null;
+      RemoteInterpreterProcess interpreterProcess;
       try {
         interpreterProcess = getOrCreateInterpreterProcess();
       } catch (IOException e) {
@@ -202,13 +197,13 @@ public class RemoteInterpreter extends Interpreter {
 
   @Override
   public InterpreterResult interpret(final String st, final InterpreterContext context)
-      throws InterpreterException {
+          throws InterpreterException {
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug("st:\n{}", st);
     }
 
     final FormType form = getFormType();
-    RemoteInterpreterProcess interpreterProcess = null;
+    RemoteInterpreterProcess interpreterProcess;
     try {
       interpreterProcess = getOrCreateInterpreterProcess();
     } catch (IOException e) {
@@ -232,9 +227,8 @@ public class RemoteInterpreter extends Interpreter {
 
             RemoteInterpreterResult remoteResult = client.interpret(
                 sessionId, className, st, convert(context));
-            Map<String, Object> remoteConfig = (Map<String, Object>) gson.fromJson(
-                remoteResult.getConfig(), new TypeToken<Map<String, Object>>() {
-                }.getType());
+            Map<String, Object> remoteConfig = gson.fromJson(
+                remoteResult.getConfig(), new TypeToken<Map<String, Object>>() {}.getType());
             context.getConfig().clear();
             context.getConfig().putAll(remoteConfig);
             GUI currentGUI = context.getGui();
@@ -262,7 +256,6 @@ public class RemoteInterpreter extends Interpreter {
           }
         }
     );
-
   }
 
   @Override
@@ -271,7 +264,7 @@ public class RemoteInterpreter extends Interpreter {
       LOGGER.warn("Cancel is called when RemoterInterpreter is not opened for " + className);
       return;
     }
-    RemoteInterpreterProcess interpreterProcess = null;
+    RemoteInterpreterProcess interpreterProcess;
     try {
       interpreterProcess = getOrCreateInterpreterProcess();
     } catch (IOException e) {
@@ -299,7 +292,7 @@ public class RemoteInterpreter extends Interpreter {
         open();
       }
     }
-    RemoteInterpreterProcess interpreterProcess = null;
+    RemoteInterpreterProcess interpreterProcess;
     try {
       interpreterProcess = getOrCreateInterpreterProcess();
     } catch (IOException e) {
@@ -317,14 +310,13 @@ public class RemoteInterpreter extends Interpreter {
     return type;
   }
 
-
   @Override
   public int getProgress(final InterpreterContext context) throws InterpreterException {
     if (!isOpened) {
       LOGGER.warn("getProgress is called when RemoterInterpreter is not opened for " + className);
       return 0;
     }
-    RemoteInterpreterProcess interpreterProcess = null;
+    RemoteInterpreterProcess interpreterProcess;
     try {
       interpreterProcess = getOrCreateInterpreterProcess();
     } catch (IOException e) {
@@ -340,15 +332,13 @@ public class RemoteInterpreter extends Interpreter {
         });
   }
 
-
   @Override
   public List<InterpreterCompletion> completion(final String buf, final int cursor,
-                                                final InterpreterContext interpreterContext)
-      throws InterpreterException {
+          final InterpreterContext interpreterContext) throws InterpreterException {
     if (!isOpened) {
       open();
     }
-    RemoteInterpreterProcess interpreterProcess = null;
+    RemoteInterpreterProcess interpreterProcess;
     try {
       interpreterProcess = getOrCreateInterpreterProcess();
     } catch (IOException e) {
@@ -370,7 +360,7 @@ public class RemoteInterpreter extends Interpreter {
       LOGGER.warn("getStatus is called when RemoteInterpreter is not opened for " + className);
       return Job.Status.UNKNOWN.name();
     }
-    RemoteInterpreterProcess interpreterProcess = null;
+    RemoteInterpreterProcess interpreterProcess;
     try {
       interpreterProcess = getOrCreateInterpreterProcess();
     } catch (IOException e) {
@@ -385,7 +375,6 @@ public class RemoteInterpreter extends Interpreter {
           }
         });
   }
-
 
   @Override
   public Scheduler getScheduler() {
@@ -436,8 +425,7 @@ public class RemoteInterpreter extends Interpreter {
       LOGGER.info("Push local angular object registry from ZeppelinServer to" +
           " remote interpreter group {}", this.getInterpreterGroup().getId());
       final java.lang.reflect.Type registryType = new TypeToken<Map<String,
-          Map<String, AngularObject>>>() {
-      }.getType();
+          Map<String, AngularObject>>>() {}.getType();
       client.angularRegistryPush(gson.toJson(registry, registryType));
     }
   }

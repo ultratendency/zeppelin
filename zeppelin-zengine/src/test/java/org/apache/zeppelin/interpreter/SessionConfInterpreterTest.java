@@ -14,26 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 package org.apache.zeppelin.interpreter;
 
-import org.apache.zeppelin.interpreter.remote.RemoteInterpreter;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.apache.zeppelin.interpreter.remote.RemoteInterpreter;
 
 public class SessionConfInterpreterTest {
-
   @Test
   public void testUserSessionConfInterpreter() throws InterpreterException {
-
     InterpreterSetting mockInterpreterSetting = mock(InterpreterSetting.class);
     ManagedInterpreterGroup mockInterpreterGroup = mock(ManagedInterpreterGroup.class);
     when(mockInterpreterSetting.getInterpreterGroup("group_1")).thenReturn(mockInterpreterGroup);

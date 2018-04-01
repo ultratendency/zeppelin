@@ -14,12 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.notebook;
 
 /**
  * TODO(moon): provide description.
  */
 public interface JobListenerFactory {
-  public ParagraphJobListener getParagraphJobListener(Note note);
+  ParagraphJobListener getParagraphJobListener(Note note);
 }

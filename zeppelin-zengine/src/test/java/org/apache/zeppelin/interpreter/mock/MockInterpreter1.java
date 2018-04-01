@@ -14,8 +14,12 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-
 package org.apache.zeppelin.interpreter.mock;
+
+import java.lang.management.ManagementFactory;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.zeppelin.interpreter.Interpreter;
 import org.apache.zeppelin.interpreter.InterpreterContext;
@@ -24,92 +28,83 @@ import org.apache.zeppelin.interpreter.thrift.InterpreterCompletion;
 import org.apache.zeppelin.scheduler.Scheduler;
 import org.apache.zeppelin.scheduler.SchedulerFactory;
 
-import java.lang.management.ManagementFactory;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class MockInterpreter1 extends Interpreter {
+  private static AtomicInteger idGenerator = new AtomicInteger();
 
-	private static AtomicInteger IdGenerator = new AtomicInteger();
+  private int objectId;
+  private String pid;
+  boolean open;
 
-	private int object_id;
-	private String pid;
-	Map<String, Object> vars = new HashMap<>();
+  public MockInterpreter1(Properties property) {
+    super(property);
+    this.objectId = idGenerator.getAndIncrement();
+    this.pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
+  }
 
-	public MockInterpreter1(Properties property) {
-		super(property);
-		this.object_id = IdGenerator.getAndIncrement();
-		this.pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-	}
+  @Override
+  public void open() {
+    open = true;
+  }
 
-	boolean open;
+  @Override
+  public void close() {
+    open = false;
+  }
 
+  public boolean isOpen() {
+    return open;
+  }
 
-	@Override
-	public void open() {
-		open = true;
-	}
+  @Override
+  public InterpreterResult interpret(String st, InterpreterContext context) {
+    InterpreterResult result;
 
-	@Override
-	public void close() {
-		open = false;
-	}
+    if ("getId".equals(st)) {
+      // get unique id of this interpreter instance
+      result = new InterpreterResult(InterpreterResult.Code.SUCCESS, "" + this.objectId + "-" +
+              this.pid);
+    } else if (st.startsWith("sleep")) {
+      try {
+        Thread.sleep(Integer.parseInt(st.split(" ")[1]));
+      } catch (InterruptedException e) {
+        // nothing to do
+      }
 
+      result = new InterpreterResult(InterpreterResult.Code.SUCCESS, "repl1: " + st);
+    } else {
+      result = new InterpreterResult(InterpreterResult.Code.SUCCESS, "repl1: " + st);
+    }
 
-	public boolean isOpen() {
-		return open;
-	}
+    if (context.getResourcePool() != null) {
+      context.getResourcePool().put(context.getNoteId(), context.getParagraphId(), "result",
+              result);
+    }
 
-	@Override
-	public InterpreterResult interpret(String st, InterpreterContext context) {
-		InterpreterResult result;
+    return result;
+  }
 
-		if ("getId".equals(st)) {
-			// get unique id of this interpreter instance
-			result = new InterpreterResult(InterpreterResult.Code.SUCCESS, "" + this.object_id + "-" + this.pid);
-		} else if (st.startsWith("sleep")) {
-			try {
-				Thread.sleep(Integer.parseInt(st.split(" ")[1]));
-			} catch (InterruptedException e) {
-				// nothing to do
-			}
-			result = new InterpreterResult(InterpreterResult.Code.SUCCESS, "repl1: " + st);
-		} else {
-			result = new InterpreterResult(InterpreterResult.Code.SUCCESS, "repl1: " + st);
-		}
+  @Override
+  public void cancel(InterpreterContext context) {
+  }
 
-		if (context.getResourcePool() != null) {
-			context.getResourcePool().put(context.getNoteId(), context.getParagraphId(), "result", result);
-		}
+  @Override
+  public FormType getFormType() {
+    return FormType.SIMPLE;
+  }
 
-		return result;
-	}
+  @Override
+  public int getProgress(InterpreterContext context) {
+    return 0;
+  }
 
-	@Override
-	public void cancel(InterpreterContext context) {
-	}
+  @Override
+  public Scheduler getScheduler() {
+    return SchedulerFactory.singleton().createOrGetFIFOScheduler("test_" + this.hashCode());
+  }
 
-	@Override
-	public FormType getFormType() {
-		return FormType.SIMPLE;
-	}
-
-	@Override
-	public int getProgress(InterpreterContext context) {
-		return 0;
-	}
-
-	@Override
-	public Scheduler getScheduler() {
-		return SchedulerFactory.singleton().createOrGetFIFOScheduler("test_"+this.hashCode());
-	}
-
-	@Override
-	public List<InterpreterCompletion> completion(String buf, int cursor,
-			InterpreterContext interpreterContext) {
-		return null;
-	}
+  @Override
+  public List<InterpreterCompletion> completion(String buf, int cursor,
+          InterpreterContext interpreterContext) {
+    return null;
+  }
 }

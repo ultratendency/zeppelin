@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.zeppelin.interpreter.remote.RemoteInterpreter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,20 +25,19 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.zeppelin.interpreter.remote.RemoteInterpreter;
+
 public class SessionConfInterpreter extends ConfInterpreter {
+  private static final Logger LOGGER = LoggerFactory.getLogger(SessionConfInterpreter.class);
 
-  private static Logger LOGGER = LoggerFactory.getLogger(SessionConfInterpreter.class);
-
-  public SessionConfInterpreter(Properties properties,
-                                String sessionId,
-                                String interpreterGroupId,
-                                InterpreterSetting interpreterSetting) {
+  public SessionConfInterpreter(Properties properties, String sessionId, String interpreterGroupId,
+          InterpreterSetting interpreterSetting) {
     super(properties, sessionId, interpreterGroupId, interpreterSetting);
   }
 
   @Override
   public InterpreterResult interpret(String st, InterpreterContext context)
-      throws InterpreterException {
+          throws InterpreterException {
     try {
       Properties finalProperties = new Properties();
       finalProperties.putAll(this.properties);

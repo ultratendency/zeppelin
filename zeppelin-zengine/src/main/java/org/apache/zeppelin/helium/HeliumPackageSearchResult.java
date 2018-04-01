@@ -17,7 +17,7 @@
 package org.apache.zeppelin.helium;
 
 /**
- * search result
+ * search result.
  */
 public class HeliumPackageSearchResult {
   private final String registry;
@@ -25,7 +25,8 @@ public class HeliumPackageSearchResult {
   private final boolean enabled;
 
   /**
-   * Create search result item
+   * Create search result item.
+   *
    * @param registry registry name
    * @param pkg package information
    */

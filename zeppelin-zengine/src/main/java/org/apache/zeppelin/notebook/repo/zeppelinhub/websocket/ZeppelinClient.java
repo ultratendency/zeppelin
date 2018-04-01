@@ -16,6 +16,14 @@
  */
 package org.apache.zeppelin.notebook.repo.zeppelinhub.websocket;
 
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
@@ -28,7 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.zeppelin.conf.ZeppelinConfiguration;
 import org.apache.zeppelin.notebook.NotebookAuthorization;
 import org.apache.zeppelin.notebook.repo.zeppelinhub.model.UserTokenContainer;
@@ -41,17 +48,9 @@ import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.scheduler.Zeppeli
 import org.apache.zeppelin.notebook.socket.Message;
 import org.apache.zeppelin.notebook.socket.Message.OP;
 import org.apache.zeppelin.util.WatcherSecurityKey;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
-import org.eclipse.jetty.websocket.client.WebSocketClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * Zeppelin websocket client.
- *
  */
 public class ZeppelinClient {
   private static final Logger LOG = LoggerFactory.getLogger(ZeppelinClient.class);
@@ -67,7 +66,7 @@ public class ZeppelinClient {
   private static final int MIN = 60;
   private static final String ORIGIN = "Origin";
 
-  private static final Set<String> actionable = new  HashSet<String>(Arrays.asList(
+  private static final Set<String> actionable = new  HashSet<>(Arrays.asList(
       // running events
       "ANGULAR_OBJECT_UPDATE",
       "PROGRESS",
@@ -81,8 +80,8 @@ public class ZeppelinClient {
       "RUN_PARAGRAPH",
       "CANCEL_PARAGRAPH"));
 
-  public static ZeppelinClient initialize(String zeppelinUrl, String token, 
-      ZeppelinConfiguration conf) {
+  public static ZeppelinClient initialize(String zeppelinUrl, String token,
+          ZeppelinConfiguration conf) {
     if (instance == null) {
       instance = new ZeppelinClient(zeppelinUrl, token, conf);
     }
@@ -198,7 +197,7 @@ public class ZeppelinClient {
     request.setHeader(WatcherSecurityKey.HTTP_HEADER, WatcherSecurityKey.getKey());
     request.setHeader(ORIGIN, "*");
     WatcherWebsocket socket = WatcherWebsocket.createInstace();
-    Future<Session> future = null;
+    Future<Session> future;
     Session session = null;
     try {
       future = wsClient.connect(socket, zeppelinWebsocketUrl, request);
@@ -227,7 +226,7 @@ public class ZeppelinClient {
     return getNoteSession(noteId, principal, ticket);
   }
   
-/*
+  /*
   private Message zeppelinGetNoteMsg(String noteId) {
     Message getNoteMsg = new Message(Message.OP.GET_NOTE);
     HashMap<String, Object> data = new HashMap<>();
@@ -252,7 +251,7 @@ public class ZeppelinClient {
     ClientUpgradeRequest request = new ClientUpgradeRequest();
     request.setHeader(ORIGIN, "*");
     ZeppelinWebsocket socket = new ZeppelinWebsocket(noteId);
-    Future<Session> future = null;
+    Future<Session> future;
     Session session = null;
     try {
       future = wsClient.connect(socket, zeppelinWebsocketUrl, request);
@@ -279,7 +278,7 @@ public class ZeppelinClient {
 
   private Message zeppelinGetNoteMsg(String noteId, String principal, String ticket) {
     Message getNoteMsg = new Message(Message.OP.GET_NOTE);
-    HashMap<String, Object> data = new HashMap<String, Object>();
+    HashMap<String, Object> data = new HashMap<>();
     data.put("id", noteId);
     getNoteMsg.data = data;
     getNoteMsg.principal = principal;
@@ -312,7 +311,6 @@ public class ZeppelinClient {
     } else {
       client.relayToZeppelinHub(hubMsg.toJson(), token);
     }
-
   }
 
   private void relayToAllZeppelinHub(ZeppelinhubMessage hubMsg, String noteId) {
@@ -362,7 +360,7 @@ public class ZeppelinClient {
       watcherSession.close();
     }
 
-    Session noteSession = null;
+    Session noteSession;
     for (Map.Entry<String, Session> note: notesConnection.entrySet()) {
       noteSession = note.getValue();
       if (isSessionOpen(noteSession)) {

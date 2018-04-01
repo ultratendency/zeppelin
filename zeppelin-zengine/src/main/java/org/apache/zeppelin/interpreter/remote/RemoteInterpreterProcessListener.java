@@ -16,30 +16,31 @@
  */
 package org.apache.zeppelin.interpreter.remote;
 
-import org.apache.zeppelin.interpreter.InterpreterResult;
-
 import java.util.Map;
 
+import org.apache.zeppelin.interpreter.InterpreterResult;
+
 /**
- * Event from remoteInterpreterProcess
+ * Event from remoteInterpreterProcess.
  */
 public interface RemoteInterpreterProcessListener {
-  public void onOutputAppend(String noteId, String paragraphId, int index, String output);
-  public void onOutputUpdated(
-      String noteId, String paragraphId, int index, InterpreterResult.Type type, String output);
-  public void onOutputClear(String noteId, String paragraphId);
-  public void onMetaInfosReceived(String settingId, Map<String, String> metaInfos);
-  public void onRemoteRunParagraph(String noteId, String ParagraphID) throws Exception;
-  public void onGetParagraphRunners(
-      String noteId, String paragraphId, RemoteWorksEventListener callback);
+  void onOutputAppend(String noteId, String paragraphId, int index, String output);
+  void onOutputUpdated(String noteId, String paragraphId, int index, InterpreterResult.Type type,
+          String output);
+  void onOutputClear(String noteId, String paragraphId);
+  void onMetaInfosReceived(String settingId, Map<String, String> metaInfos);
+  void onRemoteRunParagraph(String noteId, String paragraphId) throws Exception;
+  void onGetParagraphRunners(String noteId, String paragraphId,
+          RemoteWorksEventListener callback);
 
   /**
-   * Remote works for Interpreter callback listener
+   * Remote works for Interpreter callback listener.
    */
-  public interface RemoteWorksEventListener {
-    public void onFinished(Object resultObject);
-    public void onError();
+  interface RemoteWorksEventListener {
+    void onFinished(Object resultObject);
+    void onError();
   }
-  public void onParaInfosReceived(String noteId, String paragraphId,
-                                  String interpreterSettingId, Map<String, String> metaInfos);
+
+  void onParaInfosReceived(String noteId, String paragraphId, String interpreterSettingId,
+          Map<String, String> metaInfos);
 }

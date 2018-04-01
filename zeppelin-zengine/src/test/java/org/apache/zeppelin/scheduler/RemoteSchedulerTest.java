@@ -14,8 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.scheduler;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.zeppelin.display.GUI;
 import org.apache.zeppelin.interpreter.InterpreterContext;
@@ -32,23 +46,8 @@ import org.apache.zeppelin.interpreter.remote.mock.MockInterpreterA;
 import org.apache.zeppelin.resource.LocalResourcePool;
 import org.apache.zeppelin.scheduler.Job.Status;
 import org.apache.zeppelin.user.AuthenticationInfo;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class RemoteSchedulerTest implements RemoteInterpreterProcessListener {
-
   private static final String INTERPRETER_SCRIPT =
       System.getProperty("os.name").startsWith("Windows") ?
           "../bin/interpreter.cmd" :
@@ -64,7 +63,8 @@ public class RemoteSchedulerTest implements RemoteInterpreterProcessListener {
     schedulerSvc = new SchedulerFactory();
 
     InterpreterOption interpreterOption = new InterpreterOption();
-    InterpreterInfo interpreterInfo1 = new InterpreterInfo(MockInterpreterA.class.getName(), "mock", true, new HashMap<String, Object>());
+    InterpreterInfo interpreterInfo1 = new InterpreterInfo(MockInterpreterA.class.getName(),
+            "mock", true, new HashMap<String, Object>());
     List<InterpreterInfo> interpreterInfos = new ArrayList<>();
     interpreterInfos.add(interpreterInfo1);
     InterpreterRunner runner = new InterpreterRunner(INTERPRETER_SCRIPT, INTERPRETER_SCRIPT);
@@ -86,7 +86,8 @@ public class RemoteSchedulerTest implements RemoteInterpreterProcessListener {
 
   @Test
   public void test() throws Exception {
-    final RemoteInterpreter intpA = (RemoteInterpreter) interpreterSetting.getDefaultInterpreter("user1", "note1");
+    final RemoteInterpreter intpA =
+            (RemoteInterpreter) interpreterSetting.getDefaultInterpreter("user1", "note1");
 
     intpA.open();
 
@@ -167,7 +168,8 @@ public class RemoteSchedulerTest implements RemoteInterpreterProcessListener {
 
   @Test
   public void testAbortOnPending() throws Exception {
-    final RemoteInterpreter intpA = (RemoteInterpreter) interpreterSetting.getDefaultInterpreter("user1", "note1");
+    final RemoteInterpreter intpA =
+            (RemoteInterpreter) interpreterSetting.getDefaultInterpreter("user1", "note1");
     intpA.open();
 
     Scheduler scheduler = intpA.getScheduler();
@@ -287,7 +289,6 @@ public class RemoteSchedulerTest implements RemoteInterpreterProcessListener {
     scheduler.submit(job1);
     scheduler.submit(job2);
 
-
     int cycles = 0;
     while (!job1.isRunning() && cycles < MAX_WAIT_CYCLES) {
       Thread.sleep(TICK_WAIT);
@@ -316,37 +317,35 @@ public class RemoteSchedulerTest implements RemoteInterpreterProcessListener {
 
   @Override
   public void onOutputAppend(String noteId, String paragraphId, int index, String output) {
-
   }
 
   @Override
-  public void onOutputUpdated(String noteId, String paragraphId, int index, InterpreterResult.Type type, String output) {
-
+  public void onOutputUpdated(String noteId, String paragraphId, int index,
+          InterpreterResult.Type type, String output) {
   }
 
   @Override
   public void onOutputClear(String noteId, String paragraphId) {
-
   }
 
   @Override
   public void onMetaInfosReceived(String settingId, Map<String, String> metaInfos) {
-
   }
 
   @Override
-  public void onGetParagraphRunners(String noteId, String paragraphId, RemoteWorksEventListener callback) {
+  public void onGetParagraphRunners(String noteId, String paragraphId,
+          RemoteWorksEventListener callback) {
     if (callback != null) {
       callback.onFinished(new LinkedList<>());
     }
   }
 
   @Override
-  public void onRemoteRunParagraph(String noteId, String PsaragraphID) throws Exception {
+  public void onRemoteRunParagraph(String noteId, String paragraphId) throws Exception {
   }
 
   @Override
-  public void onParaInfosReceived(String noteId, String paragraphId,
-                                  String interpreterSettingId, Map<String, String> metaInfos) {
+  public void onParaInfosReceived(String noteId, String paragraphId, String interpreterSettingId,
+          Map<String, String> metaInfos) {
   }
 }

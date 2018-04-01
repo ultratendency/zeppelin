@@ -16,28 +16,31 @@
  */
 package org.apache.zeppelin.helium;
 
-import com.google.gson.*;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
- * HeliumRegistrySerializer (and deserializer) for gson
+ * HeliumRegistrySerializer (and deserializer) for GSON.
  */
 public class HeliumRegistrySerializer
-    implements JsonSerializer<HeliumRegistry>, JsonDeserializer<HeliumRegistry> {
+        implements JsonSerializer<HeliumRegistry>, JsonDeserializer<HeliumRegistry> {
   Logger logger = LoggerFactory.getLogger(HeliumRegistrySerializer.class);
 
   @Override
-  public HeliumRegistry deserialize(JsonElement json,
-                                Type type,
-                                JsonDeserializationContext jsonDeserializationContext)
-      throws JsonParseException {
+  public HeliumRegistry deserialize(JsonElement json, Type type,
+          JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
     JsonObject jsonObject = json.getAsJsonObject();
     String className = jsonObject.get("class").getAsString();
     String uri = jsonObject.get("uri").getAsString();
@@ -58,9 +61,8 @@ public class HeliumRegistrySerializer
   }
 
   @Override
-  public JsonElement serialize(HeliumRegistry heliumRegistry,
-                               Type type,
-                               JsonSerializationContext jsonSerializationContext) {
+  public JsonElement serialize(HeliumRegistry heliumRegistry, Type type,
+          JsonSerializationContext jsonSerializationContext) {
     JsonObject json = new JsonObject();
     json.addProperty("class", heliumRegistry.getClass().getName());
     json.addProperty("uri", heliumRegistry.uri());

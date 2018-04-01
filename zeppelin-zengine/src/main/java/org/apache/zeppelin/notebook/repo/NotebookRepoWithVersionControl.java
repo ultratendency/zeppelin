@@ -14,24 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.notebook.repo;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.zeppelin.annotation.ZeppelinApi;
-import org.apache.zeppelin.notebook.Note;
-import org.apache.zeppelin.notebook.NoteInfo;
-import org.apache.zeppelin.user.AuthenticationInfo;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
+
+import org.apache.zeppelin.annotation.ZeppelinApi;
+import org.apache.zeppelin.notebook.Note;
+import org.apache.zeppelin.user.AuthenticationInfo;
 
 /**
- * Notebook repository (persistence layer) abstraction
+ * Notebook repository (persistence layer) abstraction.
  */
 public interface NotebookRepoWithVersionControl extends NotebookRepo {
-
   /**
    * chekpoint (set revision) for notebook.
    * @param noteId Id of the Notebook
@@ -39,8 +36,9 @@ public interface NotebookRepoWithVersionControl extends NotebookRepo {
    * @return Rev
    * @throws IOException
    */
-  @ZeppelinApi public Revision checkpoint(String noteId, String checkpointMsg,
-                                          AuthenticationInfo subject) throws IOException;
+  @ZeppelinApi
+  Revision checkpoint(String noteId, String checkpointMsg, AuthenticationInfo subject)
+          throws IOException;
 
   /**
    * Get particular revision of the Notebook.
@@ -50,8 +48,8 @@ public interface NotebookRepoWithVersionControl extends NotebookRepo {
    * @return a Notebook
    * @throws IOException
    */
-  @ZeppelinApi public Note get(String noteId, String revId, AuthenticationInfo subject)
-      throws IOException;
+  @ZeppelinApi
+  Note get(String noteId, String revId, AuthenticationInfo subject) throws IOException;
 
   /**
    * List of revisions of the given Notebook.
@@ -59,7 +57,8 @@ public interface NotebookRepoWithVersionControl extends NotebookRepo {
    * @param noteId id of the Notebook
    * @return list of revisions
    */
-  @ZeppelinApi public List<Revision> revisionHistory(String noteId, AuthenticationInfo subject);
+  @ZeppelinApi
+  List<Revision> revisionHistory(String noteId, AuthenticationInfo subject);
 
   /**
    * Set note to particular revision.
@@ -70,13 +69,12 @@ public interface NotebookRepoWithVersionControl extends NotebookRepo {
    * @throws IOException
    */
   @ZeppelinApi
-  public Note setNoteRevision(String noteId, String revId, AuthenticationInfo subject)
-      throws IOException;
+  Note setNoteRevision(String noteId, String revId, AuthenticationInfo subject) throws IOException;
 
   /**
-   * Represents the 'Revision' a point in life of the notebook
+   * Represents the 'Revision' a point in life of the notebook.
    */
-  static class Revision {
+  class Revision {
     public static final Revision EMPTY = new Revision(StringUtils.EMPTY, StringUtils.EMPTY, 0);
     
     public String id;
@@ -93,5 +91,4 @@ public interface NotebookRepoWithVersionControl extends NotebookRepo {
       return revision == null || EMPTY.equals(revision);
     }
   }
-
 }

@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter.remote;
 
 import com.google.common.annotations.VisibleForTesting;
+
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteException;
@@ -30,10 +30,6 @@ import org.apache.thrift.TException;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.TServerSocket;
-import org.apache.thrift.transport.TTransportException;
-import org.apache.zeppelin.interpreter.thrift.CallbackInfo;
-import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterCallbackService;
-import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +39,15 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.zeppelin.interpreter.thrift.CallbackInfo;
+import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterCallbackService;
+import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterService;
+
 /**
- * This class manages start / stop of remote interpreter process
+ * This class manages start / stop of remote interpreter process.
  */
 public class RemoteInterpreterManagedProcess extends RemoteInterpreterProcess
-    implements ExecuteResultHandler {
+        implements ExecuteResultHandler {
   private static final Logger logger = LoggerFactory.getLogger(
       RemoteInterpreterManagedProcess.class);
 
@@ -67,16 +67,9 @@ public class RemoteInterpreterManagedProcess extends RemoteInterpreterProcess
 
   private Map<String, String> env;
 
-  public RemoteInterpreterManagedProcess(
-      String intpRunner,
-      String callbackPortRange,
-      String interpreterPortRange,
-      String intpDir,
-      String localRepoDir,
-      Map<String, String> env,
-      int connectTimeout,
-      String interpreterSettingName,
-      boolean isUserImpersonated) {
+  public RemoteInterpreterManagedProcess(String intpRunner, String callbackPortRange,
+          String interpreterPortRange, String intpDir, String localRepoDir, Map<String, String> env,
+          int connectTimeout, String interpreterSettingName, boolean isUserImpersonated) {
     super(connectTimeout);
     this.interpreterRunner = intpRunner;
     this.callbackPortRange = callbackPortRange;
@@ -103,7 +96,7 @@ public class RemoteInterpreterManagedProcess extends RemoteInterpreterProcess
     // start server process
     final String callbackHost;
     final int callbackPort;
-    TServerSocket tSocket = null;
+    TServerSocket tSocket;
     try {
       tSocket = RemoteInterpreterUtils.createTServerSocket(callbackPortRange);
       callbackPort = tSocket.getServerSocket().getLocalPort();
@@ -242,7 +235,6 @@ public class RemoteInterpreterManagedProcess extends RemoteInterpreterProcess
   public void onProcessComplete(int exitValue) {
     logger.info("Interpreter process exited {}", exitValue);
     running.set(false);
-
   }
 
   @Override
@@ -285,11 +277,10 @@ public class RemoteInterpreterManagedProcess extends RemoteInterpreterProcess
   }
 
   private static class ProcessLogOutputStream extends LogOutputStream {
-
     private Logger logger;
     OutputStream out;
 
-    public ProcessLogOutputStream(Logger logger) {
+    ProcessLogOutputStream(Logger logger) {
       this.logger = logger;
     }
 

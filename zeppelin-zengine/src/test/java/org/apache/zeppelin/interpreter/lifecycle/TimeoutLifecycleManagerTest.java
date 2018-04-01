@@ -14,8 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter.lifecycle;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.zeppelin.conf.ZeppelinConfiguration;
 import org.apache.zeppelin.display.GUI;
@@ -27,39 +37,35 @@ import org.apache.zeppelin.interpreter.InterpreterSetting;
 import org.apache.zeppelin.interpreter.remote.RemoteInterpreter;
 import org.apache.zeppelin.scheduler.Job;
 import org.apache.zeppelin.user.AuthenticationInfo;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class TimeoutLifecycleManagerTest extends AbstractInterpreterTest {
-
   @Override
   public void setUp() throws Exception {
-    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_INTERPRETER_LIFECYCLE_MANAGER_CLASS.getVarName(),
+    System.setProperty(ZeppelinConfiguration.ConfVars
+                    .ZEPPELIN_INTERPRETER_LIFECYCLE_MANAGER_CLASS.getVarName(),
         TimeoutLifecycleManager.class.getName());
-    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_INTERPRETER_LIFECYCLE_MANAGER_TIMEOUT_CHECK_INTERVAL.getVarName(), "1000");
-    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_INTERPRETER_LIFECYCLE_MANAGER_TIMEOUT_THRESHOLD.getVarName(), "10000");
+    System.setProperty(ZeppelinConfiguration.ConfVars
+            .ZEPPELIN_INTERPRETER_LIFECYCLE_MANAGER_TIMEOUT_CHECK_INTERVAL.getVarName(), "1000");
+    System.setProperty(ZeppelinConfiguration.ConfVars
+            .ZEPPELIN_INTERPRETER_LIFECYCLE_MANAGER_TIMEOUT_THRESHOLD.getVarName(), "10000");
     super.setUp();
   }
 
   @Test
   public void testTimeout_1() throws InterpreterException, InterruptedException, IOException {
-    interpreterSettingManager.setInterpreterBinding("user1", "note1", interpreterSettingManager.getSettingIds());
-    assertTrue(interpreterFactory.getInterpreter("user1", "note1", "test.echo") instanceof RemoteInterpreter);
-    RemoteInterpreter remoteInterpreter = (RemoteInterpreter) interpreterFactory.getInterpreter("user1", "note1", "test.echo");
+    interpreterSettingManager.setInterpreterBinding("user1", "note1",
+            interpreterSettingManager.getSettingIds());
+    assertTrue(interpreterFactory.getInterpreter("user1", "note1", "test.echo")
+            instanceof RemoteInterpreter);
+    RemoteInterpreter remoteInterpreter =
+            (RemoteInterpreter) interpreterFactory.getInterpreter("user1", "note1", "test.echo");
     InterpreterContext context = new InterpreterContext("noteId", "paragraphId", "repl",
         "title", "text", AuthenticationInfo.ANONYMOUS, new HashMap<String, Object>(), new GUI(),
         new GUI(), null, null, new ArrayList<InterpreterContextRunner>(), null);
     remoteInterpreter.interpret("hello world", context);
     assertTrue(remoteInterpreter.isOpened());
-    InterpreterSetting interpreterSetting = interpreterSettingManager.getInterpreterSettingByName("test");
+    InterpreterSetting interpreterSetting =
+            interpreterSettingManager.getInterpreterSettingByName("test");
     assertEquals(1, interpreterSetting.getAllInterpreterGroups().size());
 
     Thread.sleep(15 * 1000);
@@ -70,9 +76,12 @@ public class TimeoutLifecycleManagerTest extends AbstractInterpreterTest {
 
   @Test
   public void testTimeout_2() throws InterpreterException, InterruptedException, IOException {
-    interpreterSettingManager.setInterpreterBinding("user1", "note1", interpreterSettingManager.getSettingIds());
-    assertTrue(interpreterFactory.getInterpreter("user1", "note1", "test.sleep") instanceof RemoteInterpreter);
-    final RemoteInterpreter remoteInterpreter = (RemoteInterpreter) interpreterFactory.getInterpreter("user1", "note1", "test.sleep");
+    interpreterSettingManager.setInterpreterBinding("user1", "note1",
+            interpreterSettingManager.getSettingIds());
+    assertTrue(interpreterFactory.getInterpreter("user1", "note1", "test.sleep")
+            instanceof RemoteInterpreter);
+    final RemoteInterpreter remoteInterpreter =
+            (RemoteInterpreter) interpreterFactory.getInterpreter("user1", "note1", "test.sleep");
 
     // simulate how zeppelin submit paragraph
     remoteInterpreter.getScheduler().submit(new Job("test-job", null) {
@@ -106,16 +115,16 @@ public class TimeoutLifecycleManagerTest extends AbstractInterpreterTest {
 
       @Override
       public void setResult(Object results) {
-
       }
     });
 
-    while(!remoteInterpreter.isOpened()) {
+    while (!remoteInterpreter.isOpened()) {
       Thread.sleep(1000);
       LOGGER.info("Wait for interpreter to be started");
     }
 
-    InterpreterSetting interpreterSetting = interpreterSettingManager.getInterpreterSettingByName("test");
+    InterpreterSetting interpreterSetting =
+            interpreterSettingManager.getInterpreterSettingByName("test");
     assertEquals(1, interpreterSetting.getAllInterpreterGroups().size());
 
     Thread.sleep(15 * 1000);

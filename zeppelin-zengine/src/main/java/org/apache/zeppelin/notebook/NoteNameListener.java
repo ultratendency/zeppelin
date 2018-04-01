@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.notebook;
 
 /**
@@ -22,7 +21,8 @@ package org.apache.zeppelin.notebook;
  */
 public interface NoteNameListener {
   /**
-   * Fired after note name changed
+   * Fired after note name changed.
+   *
    * @param note
    * @param oldName
    */

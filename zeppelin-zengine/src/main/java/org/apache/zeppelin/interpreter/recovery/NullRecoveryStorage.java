@@ -14,37 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter.recovery;
+
+import java.io.IOException;
+import java.util.Map;
 
 import org.apache.zeppelin.conf.ZeppelinConfiguration;
 import org.apache.zeppelin.interpreter.InterpreterSettingManager;
 import org.apache.zeppelin.interpreter.launcher.InterpreterClient;
 
-import java.io.IOException;
-import java.util.Map;
-
-
 /**
  * RecoveryStorage that do nothing, used when recovery is not enabled.
- *
  */
 public class NullRecoveryStorage extends RecoveryStorage {
-
   public NullRecoveryStorage(ZeppelinConfiguration zConf,
-                             InterpreterSettingManager interpreterSettingManager)
-      throws IOException {
+          InterpreterSettingManager interpreterSettingManager) throws IOException {
     super(zConf);
   }
 
   @Override
   public void onInterpreterClientStart(InterpreterClient client) throws IOException {
-
   }
 
   @Override
   public void onInterpreterClientStop(InterpreterClient client) throws IOException {
-
   }
 
   @Override

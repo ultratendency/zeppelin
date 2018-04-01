@@ -14,16 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.user;
 
 import com.google.gson.Gson;
-import org.apache.zeppelin.common.JsonSerializable;
 
 import java.util.Map;
 
+import org.apache.zeppelin.common.JsonSerializable;
+
 /**
- * Helper class to save credentials
+ * Helper class to save credentials.
  */
 public class CredentialsInfoSaving implements JsonSerializable {
   private static final Gson gson = new Gson();

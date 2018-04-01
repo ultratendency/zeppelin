@@ -14,22 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 package org.apache.zeppelin.interpreter;
 
-
 /**
- * Interface for managing the lifecycle of interpreters
+ * Interface for managing the lifecycle of interpreters.
  */
 public interface LifecycleManager {
-
   void onInterpreterGroupCreated(ManagedInterpreterGroup interpreterGroup);
 
-  void onInterpreterSessionCreated(ManagedInterpreterGroup interpreterGroup,
-                                   String sessionId);
+  void onInterpreterSessionCreated(ManagedInterpreterGroup interpreterGroup, String sessionId);
 
-  void onInterpreterUse(ManagedInterpreterGroup interpreterGroup,
-                        String sessionId);
-
+  void onInterpreterUse(ManagedInterpreterGroup interpreterGroup, String sessionId);
 }

@@ -18,6 +18,7 @@ package org.apache.zeppelin.helium;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHost;
@@ -25,20 +26,25 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.zeppelin.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.zeppelin.util.Util;
+
 /**
- * This registry reads helium package json data
- * from specified url.
+ * This registry reads helium package json data from specified url.
  *
  * File should be look like
  * [
@@ -89,13 +95,10 @@ public class HeliumOnlineRegistry extends HeliumRegistry {
       List<HeliumPackage> packageList = new LinkedList<>();
 
       BufferedReader reader;
-      reader = new BufferedReader(
-          new InputStreamReader(response.getEntity().getContent()));
+      reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 
       List<Map<String, Map<String, HeliumPackage>>> packages = gson.fromJson(
-          reader,
-          new TypeToken<List<Map<String, Map<String, HeliumPackage>>>>() {
-          }.getType());
+          reader, new TypeToken<List<Map<String, Map<String, HeliumPackage>>>>() {}.getType());
       reader.close();
 
       for (Map<String, Map<String, HeliumPackage>> pkg : packages) {
@@ -122,13 +125,13 @@ public class HeliumOnlineRegistry extends HeliumRegistry {
         URI httpsProxyUri = new URI(httpsProxy);
         return new HttpHost(httpsProxyUri.getHost(),
                 httpsProxyUri.getPort(), httpsProxyUri.getScheme());
-      }
-      else if (scheme.toLowerCase().startsWith("http") && StringUtils.isNotBlank(httpProxy)){
+      } else if (scheme.toLowerCase().startsWith("http") && StringUtils.isNotBlank(httpProxy)){
         URI httpProxyUri = new URI(httpProxy);
         return new HttpHost(httpProxyUri.getHost(),
                 httpProxyUri.getPort(), httpProxyUri.getScheme());
+      } else {
+        return null;
       }
-      else return null;
     } catch (Exception ex) {
       logger.error(ex.getMessage(), ex);
       return null;

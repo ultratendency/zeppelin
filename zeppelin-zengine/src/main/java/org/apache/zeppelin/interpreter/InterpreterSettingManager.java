@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -24,30 +23,15 @@ import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.zeppelin.conf.ZeppelinConfiguration;
-import org.apache.zeppelin.conf.ZeppelinConfiguration.ConfVars;
-import org.apache.zeppelin.dep.Dependency;
-import org.apache.zeppelin.dep.DependencyResolver;
-import org.apache.zeppelin.display.AngularObjectRegistryListener;
-import org.apache.zeppelin.helium.ApplicationEventListener;
-import org.apache.zeppelin.interpreter.Interpreter.RegisteredInterpreter;
-import org.apache.zeppelin.interpreter.recovery.RecoveryStorage;
-import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcess;
-import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcessListener;
-import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterService;
-import org.apache.zeppelin.resource.Resource;
-import org.apache.zeppelin.resource.ResourcePool;
-import org.apache.zeppelin.resource.ResourceSet;
-import org.apache.zeppelin.util.ReflectionUtils;
-import org.apache.zeppelin.storage.ConfigStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonatype.aether.repository.Authentication;
 import org.sonatype.aether.repository.Proxy;
 import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.repository.Authentication;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -73,6 +57,22 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.zeppelin.conf.ZeppelinConfiguration;
+import org.apache.zeppelin.conf.ZeppelinConfiguration.ConfVars;
+import org.apache.zeppelin.dep.Dependency;
+import org.apache.zeppelin.dep.DependencyResolver;
+import org.apache.zeppelin.display.AngularObjectRegistryListener;
+import org.apache.zeppelin.helium.ApplicationEventListener;
+import org.apache.zeppelin.interpreter.Interpreter.RegisteredInterpreter;
+import org.apache.zeppelin.interpreter.recovery.RecoveryStorage;
+import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcess;
+import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcessListener;
+import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterService;
+import org.apache.zeppelin.resource.Resource;
+import org.apache.zeppelin.resource.ResourcePool;
+import org.apache.zeppelin.resource.ResourceSet;
+import org.apache.zeppelin.storage.ConfigStorage;
+import org.apache.zeppelin.util.ReflectionUtils;
 
 /**
  * InterpreterSettingManager is the component which manage all the interpreter settings.
@@ -81,7 +81,6 @@ import java.util.Map;
  * TODO(zjffdu) We could move it into another separated component.
  */
 public class InterpreterSettingManager {
-
   private static final Logger LOGGER = LoggerFactory.getLogger(InterpreterSettingManager.class);
   private static final Map<String, Object> DEFAULT_EDITOR = ImmutableMap.of(
       "language", (Object) "text",
@@ -91,13 +90,13 @@ public class InterpreterSettingManager {
   private final Path interpreterDirPath;
 
   /**
-   * This is only InterpreterSetting templates with default name and properties
+   * This is only InterpreterSetting templates with default name and properties.
    * name --> InterpreterSetting
    */
   private final Map<String, InterpreterSetting> interpreterSettingTemplates =
       Maps.newConcurrentMap();
   /**
-   * This is used by creating and running Interpreters
+   * This is used by creating and running Interpreters.
    * id --> InterpreterSetting
    * TODO(zjffdu) change it to name --> InterpreterSetting
    */
@@ -105,7 +104,7 @@ public class InterpreterSettingManager {
       Maps.newConcurrentMap();
 
   /**
-   * noteId --> list of InterpreterSettingId
+   * noteId --> list of InterpreterSettingId.
    */
   private final Map<String, List<String>> interpreterBindings =
       Maps.newConcurrentMap();
@@ -123,14 +122,10 @@ public class InterpreterSettingManager {
   private RecoveryStorage recoveryStorage;
   private ConfigStorage configStorage;
 
-
-
   public InterpreterSettingManager(ZeppelinConfiguration zeppelinConfiguration,
-                                   AngularObjectRegistryListener angularObjectRegistryListener,
-                                   RemoteInterpreterProcessListener
-                                       remoteInterpreterProcessListener,
-                                   ApplicationEventListener appEventListener)
-      throws IOException {
+          AngularObjectRegistryListener angularObjectRegistryListener,
+          RemoteInterpreterProcessListener remoteInterpreterProcessListener,
+          ApplicationEventListener appEventListener) throws IOException {
     this(zeppelinConfiguration, new InterpreterOption(),
         angularObjectRegistryListener,
         remoteInterpreterProcessListener,
@@ -138,13 +133,11 @@ public class InterpreterSettingManager {
         ConfigStorage.getInstance(zeppelinConfiguration));
   }
 
-  public InterpreterSettingManager(ZeppelinConfiguration conf,
-                                   InterpreterOption defaultOption,
-                                   AngularObjectRegistryListener angularObjectRegistryListener,
-                                   RemoteInterpreterProcessListener
-                                         remoteInterpreterProcessListener,
-                                   ApplicationEventListener appEventListener,
-                                   ConfigStorage configStorage) throws IOException {
+  public InterpreterSettingManager(ZeppelinConfiguration conf, InterpreterOption defaultOption,
+          AngularObjectRegistryListener angularObjectRegistryListener,
+          RemoteInterpreterProcessListener remoteInterpreterProcessListener,
+          ApplicationEventListener appEventListener, ConfigStorage configStorage)
+          throws IOException {
     this.conf = conf;
     this.defaultOption = defaultOption;
     this.interpreterDirPath = Paths.get(conf.getInterpreterDir());
@@ -174,7 +167,6 @@ public class InterpreterSettingManager {
     init();
   }
 
-
   private void initInterpreterSetting(InterpreterSetting interpreterSetting) {
     interpreterSetting.setConf(conf)
         .setInterpreterSettingManager(this)
@@ -188,11 +180,11 @@ public class InterpreterSettingManager {
   }
 
   /**
-   * Load interpreter setting from interpreter.json
+   * Load interpreter setting from interpreter.json.
    */
   private void loadFromFile() throws IOException {
-    InterpreterInfoSaving infoSaving =
-        configStorage.loadInterpreterSettings();
+    InterpreterInfoSaving infoSaving = configStorage.loadInterpreterSettings();
+
     if (infoSaving == null) {
       // it is fresh zeppelin instance if there's no interpreter.json, just create interpreter
       // setting from interpreterSettingTemplates
@@ -213,7 +205,7 @@ public class InterpreterSettingManager {
       for (String oldId : oldSettingIdList) {
         if (infoSaving.interpreterSettings.containsKey(oldId)) {
           newSettingIdList.add(infoSaving.interpreterSettings.get(oldId).getName());
-        };
+        }
       }
       newBindingMap.put(noteId, newSettingIdList);
     }
@@ -260,7 +252,7 @@ public class InterpreterSettingManager {
         for (Map.Entry<String, List<String>> entry : interpreterBindings.entrySet()) {
           List<String> ids = entry.getValue();
           Iterator<String> iter = ids.iterator();
-          while(iter.hasNext()) {
+          while (iter.hasNext()) {
             if (iter.next().equals(savedInterpreterSetting.getId())) {
               iter.remove();
             }
@@ -308,7 +300,6 @@ public class InterpreterSettingManager {
   }
 
   private void init() throws IOException {
-
     // 1. detect interpreter setting via interpreter-setting.json in each interpreter folder
     // 2. detect interpreter setting in interpreter.json that is saved before
     String interpreterJson = conf.getInterpreterJson();
@@ -322,7 +313,7 @@ public class InterpreterSettingManager {
             }
           })) {
         String interpreterDirString = interpreterDir.toString();
-        /**
+        /*
          * Register interpreter by the following ordering
          * 1. Register it from path {ZEPPELIN_HOME}/interpreter/{interpreter_name}/
          *    interpreter-setting.json
@@ -352,7 +343,7 @@ public class InterpreterSettingManager {
   }
 
   private boolean registerInterpreterFromResource(ClassLoader cl, String interpreterDir,
-                                                  String interpreterJson) throws IOException {
+          String interpreterJson) throws IOException {
     URL[] urls = recursiveBuildLibList(new File(interpreterDir));
     ClassLoader tempClassLoader = new URLClassLoader(urls, null);
 
@@ -369,8 +360,7 @@ public class InterpreterSettingManager {
   }
 
   private boolean registerInterpreterFromPath(String interpreterDir, String interpreterJson)
-      throws IOException {
-
+          throws IOException {
     Path interpreterJsonPath = Paths.get(interpreterDir, interpreterJson);
     if (Files.exists(interpreterJsonPath)) {
       LOGGER.debug("Reading interpreter-setting.json from file {}", interpreterJsonPath);
@@ -383,14 +373,12 @@ public class InterpreterSettingManager {
   }
 
   private List<RegisteredInterpreter> getInterpreterListFromJson(InputStream stream) {
-    Type registeredInterpreterListType = new TypeToken<List<RegisteredInterpreter>>() {
-    }.getType();
+    Type registeredInterpreterListType = new TypeToken<List<RegisteredInterpreter>>() {}.getType();
     return gson.fromJson(new InputStreamReader(stream), registeredInterpreterListType);
   }
 
   private void registerInterpreterSetting(List<RegisteredInterpreter> registeredInterpreters,
-                                          String interpreterDir) throws IOException {
-
+          String interpreterDir) {
     Map<String, DefaultInterpreterProperty> properties = new HashMap<>();
     List<InterpreterInfo> interpreterInfos = new ArrayList<>();
     InterpreterOption option = defaultOption;
@@ -478,7 +466,7 @@ public class InterpreterSettingManager {
 
   //TODO(zjffdu) logic here is a little ugly
   public Map<String, Object> getEditorSetting(Interpreter interpreter, String user, String noteId,
-      String replName) {
+          String replName) {
     Map<String, Object> editor = DEFAULT_EDITOR;
     String group = StringUtils.EMPTY;
     try {
@@ -617,8 +605,8 @@ public class InterpreterSettingManager {
   }
 
   /**
-   * Overwrite dependency jar under local-repo/{interpreterId}
-   * if jar file in original path is changed
+   * Overwrite dependency jar under local-repo/{interpreterId} if jar file in original path is
+   * changed.
    */
   private void copyDependenciesFromLocalPath(final InterpreterSetting setting) {
     setting.setStatus(InterpreterSetting.Status.DOWNLOADING_DEPENDENCIES);
@@ -647,8 +635,6 @@ public class InterpreterSettingManager {
                 setting.getGroup()), e);
             setting.setErrorReason(e.getLocalizedMessage());
             setting.setStatus(InterpreterSetting.Status.ERROR);
-          } finally {
-
           }
         }
       };
@@ -670,9 +656,8 @@ public class InterpreterSettingManager {
   }
 
   public InterpreterSetting createNewSetting(String name, String group,
-      List<Dependency> dependencies, InterpreterOption option, Map<String, InterpreterProperty> p)
-      throws IOException {
-
+          List<Dependency> dependencies, InterpreterOption option,
+          Map<String, InterpreterProperty> p) throws IOException {
     if (name.indexOf(".") >= 0) {
       throw new IOException("'.' is invalid for InterpreterSetting name.");
     }
@@ -703,7 +688,7 @@ public class InterpreterSettingManager {
   }
 
   /**
-   * map interpreter ids into noteId
+   * Map interpreter ids into noteId.
    *
    * @param user  user name
    * @param noteId note id
@@ -795,12 +780,11 @@ public class InterpreterSettingManager {
   }
 
   /**
-   * Change interpreter properties and restart
+   * Change interpreter properties and restart.
    */
   public void setPropertyAndRestart(String id, InterpreterOption option,
-                                    Map<String, InterpreterProperty> properties,
-                                    List<Dependency> dependencies)
-      throws InterpreterException, IOException {
+          Map<String, InterpreterProperty> properties, List<Dependency> dependencies)
+          throws InterpreterException, IOException {
     synchronized (interpreterSettings) {
       InterpreterSetting intpSetting = interpreterSettings.get(id);
       if (intpSetting != null) {
@@ -890,7 +874,7 @@ public class InterpreterSettingManager {
   }
 
   /**
-   * Get interpreter settings
+   * Get interpreter settings.
    */
   public List<InterpreterSetting> get() {
     synchronized (interpreterSettings) {
@@ -961,5 +945,4 @@ public class InterpreterSettingManager {
       }
     }
   }
-
 }

@@ -14,8 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter.remote;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,20 +25,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.zeppelin.interpreter.InterpreterContextRunner;
-import org.apache.zeppelin.interpreter.InterpreterException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class InterpreterContextRunnerPool {
   Logger logger = LoggerFactory.getLogger(InterpreterContextRunnerPool.class);
   private Map<String, List<InterpreterContextRunner>> interpreterContextRunners;
 
   public InterpreterContextRunnerPool() {
     interpreterContextRunners = new HashMap<>();
-
   }
 
   // add runner
@@ -66,7 +61,6 @@ public class InterpreterContextRunnerPool {
       interpreterContextRunners.remove(noteId);
     }
   }
-
 
   public void run(String noteId, String paragraphId) {
     synchronized (interpreterContextRunners) {

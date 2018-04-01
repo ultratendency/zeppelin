@@ -14,20 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter.recovery;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.Path;
-import org.apache.zeppelin.conf.ZeppelinConfiguration;
-import org.apache.zeppelin.interpreter.InterpreterSetting;
-import org.apache.zeppelin.interpreter.InterpreterSettingManager;
-import org.apache.zeppelin.interpreter.ManagedInterpreterGroup;
-import org.apache.zeppelin.interpreter.launcher.InterpreterClient;
-import org.apache.zeppelin.interpreter.remote.RemoteInterpreterEventPoller;
-import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcess;
-import org.apache.zeppelin.interpreter.remote.RemoteInterpreterRunningProcess;
-import org.apache.zeppelin.notebook.FileSystemStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +27,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.zeppelin.conf.ZeppelinConfiguration;
+import org.apache.zeppelin.interpreter.InterpreterSetting;
+import org.apache.zeppelin.interpreter.InterpreterSettingManager;
+import org.apache.zeppelin.interpreter.ManagedInterpreterGroup;
+import org.apache.zeppelin.interpreter.launcher.InterpreterClient;
+import org.apache.zeppelin.interpreter.remote.RemoteInterpreterEventPoller;
+import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcess;
+import org.apache.zeppelin.interpreter.remote.RemoteInterpreterRunningProcess;
+import org.apache.zeppelin.notebook.FileSystemStorage;
 
 /**
  * Hadoop compatible FileSystem based RecoveryStorage implementation.
@@ -45,7 +44,6 @@ import java.util.Map;
  * InterpreterGroupId host:port
  */
 public class FileSystemRecoveryStorage extends RecoveryStorage {
-
   private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemRecoveryStorage.class);
 
   private InterpreterSettingManager interpreterSettingManager;
@@ -53,8 +51,7 @@ public class FileSystemRecoveryStorage extends RecoveryStorage {
   private Path recoveryDir;
 
   public FileSystemRecoveryStorage(ZeppelinConfiguration zConf,
-                                   InterpreterSettingManager interpreterSettingManager)
-      throws IOException {
+          InterpreterSettingManager interpreterSettingManager) throws IOException {
     super(zConf);
     this.interpreterSettingManager = interpreterSettingManager;
     this.zConf = zConf;

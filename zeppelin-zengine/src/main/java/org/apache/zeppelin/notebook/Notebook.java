@@ -14,13 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.notebook;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Sets;
+
+import org.quartz.CronScheduleBuilder;
+import org.quartz.CronTrigger;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.quartz.JobKey;
+import org.quartz.SchedulerException;
+import org.quartz.TriggerBuilder;
+import org.quartz.impl.StdSchedulerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.zeppelin.conf.ZeppelinConfiguration;
 import org.apache.zeppelin.conf.ZeppelinConfiguration.ConfVars;
 import org.apache.zeppelin.display.AngularObject;
@@ -53,18 +67,6 @@ import org.apache.zeppelin.scheduler.SchedulerFactory;
 import org.apache.zeppelin.search.SearchService;
 import org.apache.zeppelin.user.AuthenticationInfo;
 import org.apache.zeppelin.user.Credentials;
-import org.quartz.CronScheduleBuilder;
-import org.quartz.CronTrigger;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.JobKey;
-import org.quartz.SchedulerException;
-import org.quartz.TriggerBuilder;
-import org.quartz.impl.StdSchedulerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Collection of Notes.
@@ -94,17 +96,18 @@ public class Notebook implements NoteEventListener {
   private Credentials credentials;
 
   /**
-   * Main constructor \w manual Dependency Injection
+   * Main constructor \w manual Dependency Injection.
    *
    * @param noteSearchService         - (nullable) for indexing all notebooks on creating.
    * @throws IOException
    * @throws SchedulerException
    */
   public Notebook(ZeppelinConfiguration conf, NotebookRepo notebookRepo,
-      SchedulerFactory schedulerFactory, InterpreterFactory replFactory,
-      InterpreterSettingManager interpreterSettingManager, JobListenerFactory jobListenerFactory,
-      SearchService noteSearchService, NotebookAuthorization notebookAuthorization,
-      Credentials credentials) throws IOException, SchedulerException {
+          SchedulerFactory schedulerFactory, InterpreterFactory replFactory,
+          InterpreterSettingManager interpreterSettingManager,
+          JobListenerFactory jobListenerFactory, SearchService noteSearchService,
+          NotebookAuthorization notebookAuthorization, Credentials credentials)
+          throws IOException, SchedulerException {
     this.conf = conf;
     this.notebookRepo = notebookRepo;
     this.schedulerFactory = schedulerFactory;
@@ -153,7 +156,7 @@ public class Notebook implements NoteEventListener {
    * @throws IOException
    */
   public Note createNote(List<String> interpreterIds, AuthenticationInfo subject)
-      throws IOException {
+          throws IOException {
     Note note =
         new Note(notebookRepo, replFactory, interpreterSettingManager, jobListenerFactory,
                 noteSearchService, credentials, this);
@@ -178,7 +181,8 @@ public class Notebook implements NoteEventListener {
    *
    * @param noteId - the note ID to clone
    * @return Note JSON
-   * @throws IOException, IllegalArgumentException
+   * @throws IOException
+   * @throws IllegalArgumentException
    */
   public String exportNote(String noteId) throws IOException, IllegalArgumentException {
     Note note = getNote(noteId);
@@ -197,7 +201,7 @@ public class Notebook implements NoteEventListener {
    * @throws IOException
    */
   public Note importNote(String sourceJson, String noteName, AuthenticationInfo subject)
-      throws IOException {
+          throws IOException {
     Note newNote;
     try {
       Note oldNote = Note.fromJson(sourceJson);
@@ -230,11 +234,12 @@ public class Notebook implements NoteEventListener {
    * @param sourceNoteId - the note ID to clone
    * @param newNoteName  - the name of the new note
    * @return noteId
-   * @throws IOException, CloneNotSupportedException, IllegalArgumentException
+   * @throws IOException
+   * @throws CloneNotSupportedException
+   * @throws IllegalArgumentException
    */
   public Note cloneNote(String sourceNoteId, String newNoteName, AuthenticationInfo subject)
-      throws IOException, IllegalArgumentException {
-
+          throws IOException, IllegalArgumentException {
     Note sourceNote = getNote(sourceNoteId);
     if (sourceNote == null) {
       throw new IllegalArgumentException(sourceNoteId + "not found");
@@ -261,7 +266,7 @@ public class Notebook implements NoteEventListener {
   }
 
   public void bindInterpretersToNote(String user, String id, List<String> interpreterSettingIds)
-      throws IOException {
+          throws IOException {
     Note note = getNote(id);
     if (note != null) {
       List<InterpreterSetting> currentBindings =
@@ -391,7 +396,7 @@ public class Notebook implements NoteEventListener {
   }
 
   public Revision checkpointNote(String noteId, String checkpointMessage,
-      AuthenticationInfo subject) throws IOException {
+          AuthenticationInfo subject) throws IOException {
     if (((NotebookRepoSync) notebookRepo).isRevisionSupportedInDefaultRepo()) {
       return ((NotebookRepoWithVersionControl) notebookRepo)
           .checkpoint(noteId, checkpointMessage, subject);
@@ -410,7 +415,7 @@ public class Notebook implements NoteEventListener {
   }
 
   public Note setNoteRevision(String noteId, String revisionId, AuthenticationInfo subject)
-      throws IOException {
+          throws IOException {
     if (((NotebookRepoSync) notebookRepo).isRevisionSupportedInDefaultRepo()) {
       return ((NotebookRepoWithVersionControl) notebookRepo)
           .setNoteRevision(noteId, revisionId, subject);
@@ -420,7 +425,7 @@ public class Notebook implements NoteEventListener {
   }
 
   public Note getNoteByRevision(String noteId, String revisionId, AuthenticationInfo subject)
-      throws IOException {
+          throws IOException {
     if (((NotebookRepoSync) notebookRepo).isRevisionSupportedInDefaultRepo()) {
       return ((NotebookRepoWithVersionControl) notebookRepo).get(noteId, revisionId, subject);
     } else {
@@ -475,7 +480,7 @@ public class Notebook implements NoteEventListener {
         } else if (ret == null && p.getConfig() != null) {
           //ZEPPELIN-3063 Notebook loses formatting when importing from 0.6.x
           if (p.getConfig().get("graph") != null && p.getConfig().get("graph") instanceof Map
-            && !((Map) p.getConfig().get("graph")).get("mode").equals("table")) {
+                  && !((Map) p.getConfig().get("graph")).get("mode").equals("table")) {
             Map<String, Object> config = p.getConfig();
             Object graph = config.remove("graph");
             Object apps = config.remove("apps");
@@ -651,8 +656,7 @@ public class Notebook implements NoteEventListener {
     return folders.getFolder(folderId).getNotesRecursively();
   }
 
-  public List<Note> getNotesUnderFolder(String folderId,
-      Set<String> userAndRoles) {
+  public List<Note> getNotesUnderFolder(String folderId, Set<String> userAndRoles) {
     return folders.getFolder(folderId).getNotesRecursively(userAndRoles, notebookAuthorization);
   }
 
@@ -727,7 +731,6 @@ public class Notebook implements NoteEventListener {
   }
 
   private long getUnixTimeLastRunParagraph(Paragraph paragraph) {
-
     Date lastRunningDate;
     long lastRunningUnixTime;
 
@@ -768,7 +771,7 @@ public class Notebook implements NoteEventListener {
   }
 
   public List<Map<String, Object>> getJobListByNoteId(String noteId) {
-    final String CRON_TYPE_NOTE_KEYWORD = "cron";
+    final String cronTypeNoteKeyword = "cron";
     long lastRunningUnixTime = 0;
     boolean isNoteRunning = false;
     Note jobNote = getNote(noteId);
@@ -787,8 +790,8 @@ public class Notebook implements NoteEventListener {
       info.put("noteName", "Note " + jobNote.getId());
     }
     // set note type ( cron or normal )
-    if (jobNote.getConfig().containsKey(CRON_TYPE_NOTE_KEYWORD) && !jobNote.getConfig()
-            .get(CRON_TYPE_NOTE_KEYWORD).equals("")) {
+    if (jobNote.getConfig().containsKey(cronTypeNoteKeyword) && !jobNote.getConfig()
+            .get(cronTypeNoteKeyword).equals("")) {
       info.put("noteType", "cron");
     } else {
       info.put("noteType", "normal");
@@ -825,11 +828,11 @@ public class Notebook implements NoteEventListener {
     notesInfo.add(info);
 
     return notesInfo;
-  };
+  }
 
   public List<Map<String, Object>> getJobListByUnixTime(boolean needsReload,
-      long lastUpdateServerUnixTime, AuthenticationInfo subject) {
-    final String CRON_TYPE_NOTE_KEYWORD = "cron";
+          long lastUpdateServerUnixTime, AuthenticationInfo subject) {
+    final String cronTypeNoteKeyword = "cron";
 
     if (needsReload) {
       try {
@@ -859,8 +862,8 @@ public class Notebook implements NoteEventListener {
       }
 
       // set note type ( cron or normal )
-      if (note.getConfig().containsKey(CRON_TYPE_NOTE_KEYWORD) && !note.getConfig()
-          .get(CRON_TYPE_NOTE_KEYWORD).equals("")) {
+      if (note.getConfig().containsKey(cronTypeNoteKeyword) && !note.getConfig()
+          .get(cronTypeNoteKeyword).equals("")) {
         info.put("noteType", "cron");
       } else {
         info.put("noteType", "normal");
@@ -918,7 +921,6 @@ public class Notebook implements NoteEventListener {
 
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-
       String noteId = context.getJobDetail().getJobDataMap().getString("noteId");
       Note note = notebook.getNote(noteId);
 
@@ -929,7 +931,8 @@ public class Notebook implements NoteEventListener {
       }
 
       if (!note.isCronSupported(notebook.getConf())) {
-        logger.warn("execution of the cron job is skipped cron is not enabled from Zeppelin server");
+        logger.warn("execution of the cron job is skipped cron is not enabled from Zeppelin " +
+                "server");
         return;
       }
 
@@ -965,7 +968,6 @@ public class Notebook implements NoteEventListener {
   public void refreshCron(String id) {
     removeCron(id);
     synchronized (notes) {
-
       Note note = notes.get(id);
       if (note == null) {
         return;
@@ -976,7 +978,8 @@ public class Notebook implements NoteEventListener {
       }
 
       if (!note.isCronSupported(getConf())) {
-        logger.warn("execution of the cron job is skipped cron is not enabled from Zeppelin server");
+        logger.warn("execution of the cron job is skipped cron is not enabled from Zeppelin " +
+                "server");
         return;
       }
 
@@ -984,7 +987,6 @@ public class Notebook implements NoteEventListener {
       if (cronExpr == null || cronExpr.trim().length() == 0) {
         return;
       }
-
 
       JobDetail newJob =
           JobBuilder.newJob(CronJob.class).withIdentity(id, "note").usingJobData("noteId", id)
@@ -1001,7 +1003,6 @@ public class Notebook implements NoteEventListener {
         logger.error("Error", e);
         info.put("cron", e.getMessage());
       }
-
 
       try {
         if (trigger != null) {

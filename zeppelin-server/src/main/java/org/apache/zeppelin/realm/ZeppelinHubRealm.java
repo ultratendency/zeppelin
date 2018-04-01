@@ -78,7 +78,7 @@ public class ZeppelinHubRealm extends AuthorizingRealm {
 
   @Override
   protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authToken)
-      throws AuthenticationException {
+          throws AuthenticationException {
     UsernamePasswordToken token = (UsernamePasswordToken) authToken;
     if (StringUtils.isBlank(token.getUsername())) {
       throw new AccountException("Empty usernames are not allowed by this realm.");
@@ -127,8 +127,8 @@ public class ZeppelinHubRealm extends AuthorizingRealm {
    */
   protected User authenticateUser(String requestBody) {
     PutMethod put = new PutMethod(Joiner.on("/").join(zeppelinhubUrl, USER_LOGIN_API_ENDPOINT));
-    String responseBody = StringUtils.EMPTY;
-    String userSession = StringUtils.EMPTY;
+    String responseBody;
+    String userSession;
     try {
       put.setRequestEntity(new StringRequestEntity(requestBody, JSON_CONTENT_TYPE, UTF_8_ENCODING));
       int statusCode = httpClient.executeMethod(put);
@@ -147,7 +147,7 @@ public class ZeppelinHubRealm extends AuthorizingRealm {
       throw new AuthenticationException(e.getMessage());
     }
 
-    User account = null;
+    User account;
     try {
       account = User.fromJson(responseBody);
     } catch (JsonParseException e) {
@@ -217,7 +217,7 @@ public class ZeppelinHubRealm extends AuthorizingRealm {
   }
 
   public void onLoginSuccess(String username, String session) {
-    UserSessionContainer.instance.setSession(username, session);
+    UserSessionContainer.INSTANCE.setSession(username, session);
 
     /* TODO(xxx): add proper roles */
     HashSet<String> userAndRoles = new HashSet<String>();

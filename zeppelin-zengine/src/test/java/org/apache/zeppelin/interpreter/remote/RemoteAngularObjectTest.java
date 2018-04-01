@@ -14,17 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter.remote;
 
-import org.apache.zeppelin.display.AngularObject;
-import org.apache.zeppelin.display.AngularObjectRegistry;
-import org.apache.zeppelin.display.AngularObjectRegistryListener;
-import org.apache.zeppelin.display.GUI;
-import org.apache.zeppelin.interpreter.*;
-import org.apache.zeppelin.interpreter.remote.mock.MockInterpreterAngular;
-import org.apache.zeppelin.resource.LocalResourcePool;
-import org.apache.zeppelin.user.AuthenticationInfo;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,8 +28,21 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import org.apache.zeppelin.display.AngularObject;
+import org.apache.zeppelin.display.AngularObjectRegistry;
+import org.apache.zeppelin.display.AngularObjectRegistryListener;
+import org.apache.zeppelin.display.GUI;
+import org.apache.zeppelin.interpreter.InterpreterContext;
+import org.apache.zeppelin.interpreter.InterpreterContextRunner;
+import org.apache.zeppelin.interpreter.InterpreterException;
+import org.apache.zeppelin.interpreter.InterpreterInfo;
+import org.apache.zeppelin.interpreter.InterpreterOption;
+import org.apache.zeppelin.interpreter.InterpreterResult;
+import org.apache.zeppelin.interpreter.InterpreterRunner;
+import org.apache.zeppelin.interpreter.InterpreterSetting;
+import org.apache.zeppelin.interpreter.remote.mock.MockInterpreterAngular;
+import org.apache.zeppelin.resource.LocalResourcePool;
+import org.apache.zeppelin.user.AuthenticationInfo;
 
 public class RemoteAngularObjectTest implements AngularObjectRegistryListener {
   private static final String INTERPRETER_SCRIPT =
@@ -60,7 +66,8 @@ public class RemoteAngularObjectTest implements AngularObjectRegistryListener {
     onRemove = new AtomicInteger(0);
 
     InterpreterOption interpreterOption = new InterpreterOption();
-    InterpreterInfo interpreterInfo1 = new InterpreterInfo(MockInterpreterAngular.class.getName(), "mock", true, new HashMap<String, Object>());
+    InterpreterInfo interpreterInfo1 = new InterpreterInfo(MockInterpreterAngular.class.getName(),
+            "mock", true, new HashMap<String, Object>());
     List<InterpreterInfo> interpreterInfos = new ArrayList<>();
     interpreterInfos.add(interpreterInfo1);
     InterpreterRunner runner = new InterpreterRunner(INTERPRETER_SCRIPT, INTERPRETER_SCRIPT);
@@ -75,7 +82,8 @@ public class RemoteAngularObjectTest implements AngularObjectRegistryListener {
         .create();
 
     intp = (RemoteInterpreter) interpreterSetting.getDefaultInterpreter("user1", "note1");
-    localRegistry = (RemoteAngularObjectRegistry) intp.getInterpreterGroup().getAngularObjectRegistry();
+    localRegistry =
+            (RemoteAngularObjectRegistry) intp.getInterpreterGroup().getAngularObjectRegistry();
 
     context = new InterpreterContext(
         "note",
@@ -92,16 +100,16 @@ public class RemoteAngularObjectTest implements AngularObjectRegistryListener {
         new LinkedList<InterpreterContextRunner>(), null);
 
     intp.open();
-
   }
 
   @After
-  public void tearDown() throws Exception {
+  public void tearDown() {
     interpreterSetting.close();
   }
 
   @Test
-  public void testAngularObjectInterpreterSideCRUD() throws InterruptedException, InterpreterException {
+  public void testAngularObjectInterpreterSideCRUD()
+          throws InterruptedException, InterpreterException {
     InterpreterResult ret = intp.interpret("get", context);
     Thread.sleep(500); // waitFor eventpoller pool event
     String[] result = ret.message().get(0).getData().split(" ");
@@ -134,10 +142,10 @@ public class RemoteAngularObjectTest implements AngularObjectRegistryListener {
   }
 
   @Test
-  public void testAngularObjectRemovalOnZeppelinServerSide() throws InterruptedException, InterpreterException {
+  public void testAngularObjectRemovalOnZeppelinServerSide()
+          throws InterruptedException, InterpreterException {
     // test if angularobject removal from server side propagate to interpreter process's registry.
     // will happen when notebook is removed.
-
     InterpreterResult ret = intp.interpret("get", context);
     Thread.sleep(500); // waitFor eventpoller pool event
     String[] result = ret.message().get(0).getData().split(" ");
@@ -159,10 +167,10 @@ public class RemoteAngularObjectTest implements AngularObjectRegistryListener {
   }
 
   @Test
-  public void testAngularObjectAddOnZeppelinServerSide() throws InterruptedException, InterpreterException {
+  public void testAngularObjectAddOnZeppelinServerSide()
+          throws InterruptedException, InterpreterException {
     // test if angularobject add from server side propagate to interpreter process's registry.
     // will happen when zeppelin server loads notebook and restore the object into registry
-
     InterpreterResult ret = intp.interpret("get", context);
     Thread.sleep(500); // waitFor eventpoller pool event
     String[] result = ret.message().get(0).getData().split(" ");
@@ -192,5 +200,4 @@ public class RemoteAngularObjectTest implements AngularObjectRegistryListener {
   public void onRemove(String interpreterGroupId, String name, String noteId, String paragraphId) {
     onRemove.incrementAndGet();
   }
-
 }

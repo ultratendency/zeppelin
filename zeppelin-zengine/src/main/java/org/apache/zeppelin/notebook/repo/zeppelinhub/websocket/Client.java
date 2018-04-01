@@ -16,15 +16,15 @@
  */
 package org.apache.zeppelin.notebook.repo.zeppelinhub.websocket;
 
-import org.apache.zeppelin.conf.ZeppelinConfiguration;
-import org.apache.zeppelin.notebook.socket.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.zeppelin.conf.ZeppelinConfiguration;
+import org.apache.zeppelin.notebook.socket.Message;
 
 /**
  * Client to connect Zeppelin and ZeppelinHub via websocket API.
  * Implemented using singleton pattern.
- * 
  */
 public class Client {
   private static final Logger LOG = LoggerFactory.getLogger(Client.class);
@@ -36,7 +36,7 @@ public class Client {
   private static final int MAXIMUM_NOTE_SIZE = 64 * MB;
 
   public static Client initialize(String zeppelinUri, String zeppelinhubUri, String token, 
-      ZeppelinConfiguration conf) {
+          ZeppelinConfiguration conf) {
     if (instance == null) {
       instance = new Client(zeppelinUri, zeppelinhubUri, token, conf);
     }
@@ -48,7 +48,7 @@ public class Client {
   }
 
   private Client(String zeppelinUri, String zeppelinhubUri, String token,
-      ZeppelinConfiguration conf) {
+          ZeppelinConfiguration conf) {
     LOG.debug("Init Client");
     zeppelinhubClient = ZeppelinhubClient.initialize(zeppelinhubUri, token);
     zeppelinClient = ZeppelinClient.initialize(zeppelinUri, token, conf);

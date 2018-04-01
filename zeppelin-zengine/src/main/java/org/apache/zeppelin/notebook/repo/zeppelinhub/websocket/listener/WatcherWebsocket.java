@@ -17,19 +17,19 @@
 package org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.listener;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.ZeppelinClient;
-import org.apache.zeppelin.notebook.socket.Message;
-import org.apache.zeppelin.notebook.socket.Message.OP;
-import org.apache.zeppelin.notebook.socket.WatcherMessage;
-import org.apache.zeppelin.ticket.TicketContainer;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.ZeppelinClient;
+import org.apache.zeppelin.notebook.socket.Message;
+import org.apache.zeppelin.notebook.socket.Message.OP;
+import org.apache.zeppelin.notebook.socket.WatcherMessage;
+import org.apache.zeppelin.ticket.TicketContainer;
+
 /**
  * Zeppelin Watcher that will forward user note to ZeppelinHub.
- *
  */
 public class WatcherWebsocket implements WebSocketListener {
   private static final Logger LOG = LoggerFactory.getLogger(ZeppelinWebsocket.class);
@@ -55,7 +55,7 @@ public class WatcherWebsocket implements WebSocketListener {
     this.connection = session;
     Message watcherMsg = new Message(OP.WATCHER);
     watcherMsg.principal = watcherPrincipal;
-    watcherMsg.ticket = TicketContainer.instance.getTicket(watcherPrincipal);
+    watcherMsg.ticket = TicketContainer.INSTANCE.getTicket(watcherPrincipal);
     session.getRemote().sendStringByFuture(watcherMsg.toJson());
   }
 
@@ -79,5 +79,4 @@ public class WatcherWebsocket implements WebSocketListener {
       LOG.error("Failed to send message to ZeppelinHub: ", e);
     }
   }
-
 }

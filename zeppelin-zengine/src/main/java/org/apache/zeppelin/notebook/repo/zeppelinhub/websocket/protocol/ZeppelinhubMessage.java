@@ -16,23 +16,23 @@
  */
 package org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.protocol;
 
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.zeppelin.common.JsonSerializable;
-import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.Client;
-import org.apache.zeppelin.notebook.socket.Message;
-import org.apache.zeppelin.notebook.socket.Message.OP;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+
+import org.apache.zeppelin.common.JsonSerializable;
+import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.Client;
+import org.apache.zeppelin.notebook.socket.Message;
+import org.apache.zeppelin.notebook.socket.Message.OP;
+
 /**
  * Zeppelinhub message class.
- *
  */
 public class ZeppelinhubMessage implements JsonSerializable {
   private static final Gson gson = new Gson();
@@ -82,5 +82,4 @@ public class ZeppelinhubMessage implements JsonSerializable {
     }
     return msg;
   }
-  
 }

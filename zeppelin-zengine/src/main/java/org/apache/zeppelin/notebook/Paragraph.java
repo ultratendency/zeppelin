@@ -14,8 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.notebook;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -61,20 +67,14 @@ import org.apache.zeppelin.scheduler.Scheduler;
 import org.apache.zeppelin.user.AuthenticationInfo;
 import org.apache.zeppelin.user.Credentials;
 import org.apache.zeppelin.user.UserCredentials;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
 
 /**
  * Paragraph is a representation of an execution unit.
  */
 public class Paragraph extends Job implements Cloneable, JsonSerializable {
-
   private static Logger logger = LoggerFactory.getLogger(Paragraph.class);
-  private static Pattern REPL_PATTERN = Pattern.compile("(\\s*)%([\\w\\.]+).*", Pattern.DOTALL);
+  private static final Pattern REPL_PATTERN = Pattern.compile("(\\s*)%([\\w\\.]+).*",
+          Pattern.DOTALL);
 
   private transient InterpreterFactory interpreterFactory;
   private transient Interpreter interpreter;
@@ -101,7 +101,7 @@ public class Paragraph extends Job implements Cloneable, JsonSerializable {
   private Map<String, ParagraphRuntimeInfo> runtimeInfos;
 
   /**
-   * Application states in this paragraph
+   * Application states in this paragraph.
    */
   private final List<ApplicationState> apps = new LinkedList<>();
 
@@ -111,7 +111,7 @@ public class Paragraph extends Job implements Cloneable, JsonSerializable {
   }
 
   public Paragraph(String paragraphId, Note note, JobListener listener,
-      InterpreterFactory interpreterFactory) {
+          InterpreterFactory interpreterFactory) {
     super(paragraphId, generateId(), listener);
     this.note = note;
     this.interpreterFactory = interpreterFactory;
@@ -278,7 +278,6 @@ public class Paragraph extends Job implements Cloneable, JsonSerializable {
 
   public int calculateCursorPosition(String buffer, int cursor) {
     // scriptText trimmed
-
     if (this.scriptText.isEmpty()) {
       return 0;
     }
@@ -367,8 +366,7 @@ public class Paragraph extends Job implements Cloneable, JsonSerializable {
         return true;
       }
     } catch (InterpreterNotFoundException e) {
-      InterpreterResult intpResult =
-          new InterpreterResult(InterpreterResult.Code.ERROR);
+      InterpreterResult intpResult = new InterpreterResult(InterpreterResult.Code.ERROR);
       setReturn(intpResult, e);
       setStatus(Job.Status.ERROR);
       throw new RuntimeException(e);
@@ -528,7 +526,6 @@ public class Paragraph extends Job implements Cloneable, JsonSerializable {
         } catch (IOException e) {
           logger.error(e.getMessage(), e);
         }
-
       }
 
       private void updateParagraphResult(List<InterpreterResultMessage> msgs) {
@@ -549,8 +546,6 @@ public class Paragraph extends Job implements Cloneable, JsonSerializable {
     }
 
     List<InterpreterContextRunner> runners = new LinkedList<>();
-
-    final Paragraph self = this;
 
     Credentials credentials = note.getCredentials();
     setAuthenticationInfo(new AuthenticationInfo(getUser()));
@@ -582,8 +577,6 @@ public class Paragraph extends Job implements Cloneable, JsonSerializable {
       runners.add(new ParagraphRunner(note, note.getId(), p.getId()));
     }
 
-    final Paragraph self = this;
-
     Credentials credentials = note.getCredentials();
     if (authenticationInfo != null) {
       UserCredentials userCredentials =
@@ -610,10 +603,9 @@ public class Paragraph extends Job implements Cloneable, JsonSerializable {
   }
 
   static class ParagraphRunner extends InterpreterContextRunner {
-
     private transient Note note;
 
-    public ParagraphRunner(Note note, String noteId, String paragraphId) {
+    ParagraphRunner(Note note, String noteId, String paragraphId) {
       super(noteId, paragraphId);
       this.note = note;
     }
@@ -662,7 +654,6 @@ public class Paragraph extends Job implements Cloneable, JsonSerializable {
     }
   }
 
-
   public ApplicationState getApplicationState(String appId) {
     synchronized (apps) {
       for (ApplicationState as : apps) {
@@ -682,8 +673,7 @@ public class Paragraph extends Job implements Cloneable, JsonSerializable {
   }
 
   String extractVariablesFromAngularRegistry(String scriptBody, Map<String, Input> inputs,
-      AngularObjectRegistry angularRegistry) {
-
+          AngularObjectRegistry angularRegistry) {
     final String noteId = this.getNote().getId();
     final String paragraphId = this.getId();
 
@@ -711,9 +701,9 @@ public class Paragraph extends Job implements Cloneable, JsonSerializable {
   }
 
   public void updateRuntimeInfos(String label, String tooltip, Map<String, String> infos,
-      String group, String intpSettingId) {
+          String group, String intpSettingId) {
     if (this.runtimeInfos == null) {
-      this.runtimeInfos = new HashMap<String, ParagraphRuntimeInfo>();
+      this.runtimeInfos = new HashMap<>();
     }
 
     if (infos != null) {
@@ -729,7 +719,8 @@ public class Paragraph extends Job implements Cloneable, JsonSerializable {
   }
 
   /**
-   * Remove runtimeinfo taht were got from the setting with id settingId
+   * Remove runtimeinfo taht were got from the setting with id settingId.
+   *
    * @param settingId
    */
   public void clearRuntimeInfo(String settingId) {
@@ -812,7 +803,6 @@ public class Paragraph extends Job implements Cloneable, JsonSerializable {
     }
     return runtimeInfos != null ?
         runtimeInfos.equals(paragraph.runtimeInfos) : paragraph.runtimeInfos == null;
-
   }
 
   @Override
@@ -838,5 +828,4 @@ public class Paragraph extends Job implements Cloneable, JsonSerializable {
   public static Paragraph fromJson(String json) {
     return Note.getGson().fromJson(json, Paragraph.class);
   }
-
 }

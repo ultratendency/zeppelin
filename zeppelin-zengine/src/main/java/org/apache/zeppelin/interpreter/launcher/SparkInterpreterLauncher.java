@@ -14,13 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter.launcher;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.zeppelin.conf.ZeppelinConfiguration;
-import org.apache.zeppelin.interpreter.recovery.RecoveryStorage;
-import org.apache.zeppelin.interpreter.remote.RemoteInterpreterUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,11 +25,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.zeppelin.conf.ZeppelinConfiguration;
+import org.apache.zeppelin.interpreter.recovery.RecoveryStorage;
+import org.apache.zeppelin.interpreter.remote.RemoteInterpreterUtils;
+
 /**
  * Spark specific launcher.
  */
 public class SparkInterpreterLauncher extends ShellScriptLauncher {
-
   private static final Logger LOGGER = LoggerFactory.getLogger(SparkInterpreterLauncher.class);
 
   public SparkInterpreterLauncher(ZeppelinConfiguration zConf, RecoveryStorage recoveryStorage) {
@@ -42,7 +41,7 @@ public class SparkInterpreterLauncher extends ShellScriptLauncher {
 
   @Override
   protected Map<String, String> buildEnvFromProperties(InterpreterLaunchContext context) {
-    Map<String, String> env = new HashMap<String, String>();
+    Map<String, String> env = new HashMap<>();
     Properties sparkProperties = new Properties();
     String sparkMaster = getSparkMaster(properties);
     for (String key : properties.stringPropertyNames()) {
@@ -104,16 +103,13 @@ public class SparkInterpreterLauncher extends ShellScriptLauncher {
     }
     LOGGER.debug("buildEnvFromProperties: " + env);
     return env;
-
   }
-
 
   /**
    * get environmental variable in the following order
    *
    * 1. interpreter setting
    * 2. zeppelin-env.sh
-   *
    */
   private String getEnv(String envName) {
     String env = properties.getProperty(envName);
@@ -134,7 +130,7 @@ public class SparkInterpreterLauncher extends ShellScriptLauncher {
   }
 
   private void mergeSparkProperty(Properties sparkProperties, String propertyName,
-                                  String propertyValue) {
+          String propertyValue) {
     if (sparkProperties.containsKey(propertyName)) {
       String oldPropertyValue = sparkProperties.getProperty(propertyName);
       sparkProperties.setProperty(propertyName, oldPropertyValue + "," + propertyValue);
@@ -145,7 +141,7 @@ public class SparkInterpreterLauncher extends ShellScriptLauncher {
 
   private void setupPropertiesForSparkR(Properties sparkProperties) {
     String sparkHome = getEnv("SPARK_HOME");
-    File sparkRBasePath = null;
+    File sparkRBasePath;
     if (sparkHome == null) {
       if (!getSparkMaster(properties).startsWith("local")) {
         throw new RuntimeException("SPARK_HOME is not specified in interpreter-setting" +
@@ -221,5 +217,4 @@ public class SparkInterpreterLauncher extends ShellScriptLauncher {
       return "'" + value + "'";
     }
   }
-
 }

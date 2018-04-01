@@ -16,6 +16,17 @@
  */
 package org.apache.zeppelin.notebook.repo.zeppelinhub.websocket;
 
+import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import org.apache.commons.lang.StringUtils;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
+import org.eclipse.jetty.websocket.client.WebSocketClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.HttpCookie;
@@ -26,7 +37,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
+import com.amazonaws.util.json.JSONArray;
+import com.amazonaws.util.json.JSONException;
+import com.amazonaws.util.json.JSONObject;
+
 import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.listener.ZeppelinhubWebsocket;
 import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.protocol.ZeppelinHubOp;
 import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.protocol.ZeppelinhubMessage;
@@ -37,19 +51,6 @@ import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.utils.Zeppelinhub
 import org.apache.zeppelin.notebook.socket.Message;
 import org.apache.zeppelin.notebook.socket.Message.OP;
 import org.apache.zeppelin.ticket.TicketContainer;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
-import org.eclipse.jetty.websocket.client.WebSocketClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.amazonaws.util.json.JSONArray;
-import com.amazonaws.util.json.JSONException;
-import com.amazonaws.util.json.JSONObject;
-import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 /**
  * Manage a zeppelinhub websocket connection.
@@ -67,8 +68,7 @@ public class ZeppelinhubClient {
   private static Gson gson;
   
   private SchedulerService schedulerService;
-  private Map<String, ZeppelinhubSession> sessionMap = 
-      new ConcurrentHashMap<String, ZeppelinhubSession>();
+  private Map<String, ZeppelinhubSession> sessionMap = new ConcurrentHashMap<>();
 
   public static ZeppelinhubClient initialize(String zeppelinhubUrl, String token) {
     if (instance == null) {
@@ -100,7 +100,6 @@ public class ZeppelinhubClient {
   }
   
   public void initUser(String token) {
-    
   }
 
   public void stop() {
@@ -200,7 +199,7 @@ public class ZeppelinhubClient {
       LOG.error("Cannot handle ZeppelinHub message is empty");
       return;
     }
-    String op = StringUtils.EMPTY;
+    String op;
     if (hubMsg.op instanceof String) {
       op = (String) hubMsg.op;
     } else {
@@ -238,7 +237,7 @@ public class ZeppelinhubClient {
     }
     zeppelinMsg.data = (Map<String, Object>) hubMsg.data;
     zeppelinMsg.principal = hubMsg.meta.get("owner");
-    zeppelinMsg.ticket = TicketContainer.instance.getTicket(zeppelinMsg.principal);
+    zeppelinMsg.ticket = TicketContainer.INSTANCE.getTicket(zeppelinMsg.principal);
     Client client = Client.getInstance();
     if (client == null) {
       LOG.warn("Base client isn't initialized, returning");
@@ -272,7 +271,7 @@ public class ZeppelinhubClient {
         zeppelinMsg.data = gson.fromJson(paragraphs.getString(i), 
             new TypeToken<Map<String, Object>>(){}.getType());
         zeppelinMsg.principal = principal;
-        zeppelinMsg.ticket = TicketContainer.instance.getTicket(principal);
+        zeppelinMsg.ticket = TicketContainer.INSTANCE.getTicket(principal);
         client.relayToZeppelin(zeppelinMsg, noteId);
         LOG.info("\nSending RUN_PARAGRAPH message to Zeppelin ");
       }
@@ -282,5 +281,4 @@ public class ZeppelinhubClient {
     }
     return true;
   }
-
 }

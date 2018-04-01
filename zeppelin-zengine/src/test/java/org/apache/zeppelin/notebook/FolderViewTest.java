@@ -14,27 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.notebook;
 
-import org.apache.zeppelin.interpreter.Interpreter;
-import org.apache.zeppelin.interpreter.InterpreterFactory;
-import org.apache.zeppelin.interpreter.InterpreterSettingManager;
-import org.apache.zeppelin.notebook.repo.NotebookRepo;
-import org.apache.zeppelin.scheduler.Scheduler;
-import org.apache.zeppelin.search.SearchService;
-import org.apache.zeppelin.user.Credentials;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import org.apache.zeppelin.interpreter.InterpreterFactory;
+import org.apache.zeppelin.interpreter.InterpreterSettingManager;
+import org.apache.zeppelin.notebook.repo.NotebookRepo;
+import org.apache.zeppelin.search.SearchService;
+import org.apache.zeppelin.user.Credentials;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FolderViewTest {
@@ -51,12 +50,6 @@ public class FolderViewTest {
   Credentials credentials;
 
   @Mock
-  Interpreter interpreter;
-
-  @Mock
-  Scheduler scheduler;
-
-  @Mock
   NoteEventListener noteEventListener;
 
   @Mock
@@ -66,10 +59,6 @@ public class FolderViewTest {
   InterpreterSettingManager interpreterSettingManager;
 
   FolderView folderView;
-
-  Note note1;
-  Note note2;
-  Note note3;
 
   List<String> testNoteNames = Arrays.asList(
           "note1", "/note2",
@@ -89,7 +78,8 @@ public class FolderViewTest {
   Note abNote2;
 
   private Note createNote() {
-    Note note = new Note(repo, interpreterFactory, interpreterSettingManager, jobListenerFactory, index, credentials, noteEventListener);
+    Note note = new Note(repo, interpreterFactory, interpreterSettingManager, jobListenerFactory,
+            index, credentials, noteEventListener);
     note.setNoteNameListener(folderView);
     return note;
   }
@@ -280,12 +270,11 @@ public class FolderViewTest {
   }
 
   /**
-   * Should rename a empty folder
+   * Should rename a empty folder.
    */
   @Test
   public void renameEmptyFolderTest() {
     // Create a note of which name is "x/y/z" and rename "x" -> "u"
-
     Note note = createNote();
     note.setName("x/y/z");
     folderView.putNote(note);
@@ -297,7 +286,7 @@ public class FolderViewTest {
   }
 
   /**
-   * Should also rename child folders of the target folder
+   * Should also rename child folders of the target folder.
    */
   @Test
   public void renameFolderHasChildrenTest() {

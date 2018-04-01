@@ -14,13 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.scheduler;
 
-import org.apache.zeppelin.interpreter.InterpreterResult;
-import org.apache.zeppelin.interpreter.InterpreterResult.Code;
-import org.apache.zeppelin.interpreter.remote.RemoteInterpreter;
-import org.apache.zeppelin.scheduler.Job.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +25,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import org.apache.zeppelin.interpreter.InterpreterResult;
+import org.apache.zeppelin.interpreter.InterpreterResult.Code;
+import org.apache.zeppelin.interpreter.remote.RemoteInterpreter;
+import org.apache.zeppelin.scheduler.Job.Status;
+
 /**
- * RemoteScheduler runs in ZeppelinServer and proxies Scheduler running on RemoteInterpreter
- *
+ * RemoteScheduler runs in ZeppelinServer and proxies Scheduler running on RemoteInterpreter.
  */
 public class RemoteScheduler implements Scheduler {
   Logger logger = LoggerFactory.getLogger(RemoteScheduler.class);
@@ -48,8 +47,7 @@ public class RemoteScheduler implements Scheduler {
   private RemoteInterpreter remoteInterpreter;
 
   public RemoteScheduler(String name, ExecutorService executor, String sessionId,
-                         RemoteInterpreter remoteInterpreter, SchedulerListener listener,
-                         int maxConcurrency) {
+          RemoteInterpreter remoteInterpreter, SchedulerListener listener, int maxConcurrency) {
     this.name = name;
     this.executor = executor;
     this.listener = listener;
@@ -61,7 +59,7 @@ public class RemoteScheduler implements Scheduler {
   @Override
   public void run() {
     while (terminate == false) {
-      Job job = null;
+      Job job;
 
       synchronized (queue) {
         if (running.size() >= maxConcurrency || queue.isEmpty() == true) {
@@ -171,9 +169,8 @@ public class RemoteScheduler implements Scheduler {
     private Job job;
     volatile Status lastStatus;
 
-    public JobStatusPoller(long initialPeriodMsec,
-        long initialPeriodCheckIntervalMsec, long checkIntervalMsec, Job job,
-        JobListener listener) {
+    JobStatusPoller(long initialPeriodMsec, long initialPeriodCheckIntervalMsec,
+            long checkIntervalMsec, Job job, JobListener listener) {
       setName("JobStatusPoller-" + job.getId());
       this.initialPeriodMsec = initialPeriodMsec;
       this.initialPeriodCheckIntervalMsec = initialPeriodCheckIntervalMsec;
@@ -228,7 +225,6 @@ public class RemoteScheduler implements Scheduler {
       }
     }
 
-
     private Status getLastStatus() {
       if (terminate == true) {
         if (job.getErrorMessage() != null) {
@@ -269,7 +265,7 @@ public class RemoteScheduler implements Scheduler {
     private volatile boolean jobExecuted;
     volatile boolean jobSubmittedRemotely;
 
-    public JobRunner(Scheduler scheduler, Job job) {
+    JobRunner(Scheduler scheduler, Job job) {
       this.scheduler = scheduler;
       this.job = job;
       jobExecuted = false;
@@ -378,7 +374,5 @@ public class RemoteScheduler implements Scheduler {
     synchronized (queue) {
       queue.notify();
     }
-
   }
-
 }

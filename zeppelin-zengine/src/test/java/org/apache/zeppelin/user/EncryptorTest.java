@@ -14,18 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.user;
-
-import java.io.IOException;
-
-import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-public class EncryptorTest {
+import org.junit.Test;
 
+import java.io.IOException;
+
+public class EncryptorTest {
   @Test
   public void testEncryption() throws IOException {
     Encryptor encryptor = new Encryptor("foobar1234567890");

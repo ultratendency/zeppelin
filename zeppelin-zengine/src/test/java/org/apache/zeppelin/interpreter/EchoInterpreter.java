@@ -14,29 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 package org.apache.zeppelin.interpreter;
 
 import java.util.Properties;
 
 /**
- * Just return the received statement back
+ * Just return the received statement back.
  */
 public class EchoInterpreter extends Interpreter {
-
   public EchoInterpreter(Properties property) {
     super(property);
   }
 
   @Override
   public void open() {
-
   }
 
   @Override
   public void close() {
-
   }
 
   @Override
@@ -50,7 +45,6 @@ public class EchoInterpreter extends Interpreter {
 
   @Override
   public void cancel(InterpreterContext context) {
-
   }
 
   @Override

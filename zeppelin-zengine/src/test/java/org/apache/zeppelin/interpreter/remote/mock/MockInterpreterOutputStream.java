@@ -16,6 +16,10 @@
  */
 package org.apache.zeppelin.interpreter.remote.mock;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.zeppelin.interpreter.Interpreter;
 import org.apache.zeppelin.interpreter.InterpreterContext;
 import org.apache.zeppelin.interpreter.InterpreterException;
@@ -24,12 +28,8 @@ import org.apache.zeppelin.interpreter.thrift.InterpreterCompletion;
 import org.apache.zeppelin.scheduler.Scheduler;
 import org.apache.zeppelin.scheduler.SchedulerFactory;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
-
 /**
- * MockInterpreter to test outputstream
+ * MockInterpreter to test outputstream.
  */
 public class MockInterpreterOutputStream extends Interpreter {
   private String lastSt;
@@ -68,7 +68,6 @@ public class MockInterpreterOutputStream extends Interpreter {
 
   @Override
   public void cancel(InterpreterContext context) {
-
   }
 
   @Override

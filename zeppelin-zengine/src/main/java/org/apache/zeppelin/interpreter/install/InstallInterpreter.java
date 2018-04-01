@@ -17,9 +17,6 @@
 package org.apache.zeppelin.interpreter.install;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.zeppelin.conf.ZeppelinConfiguration;
-import org.apache.zeppelin.dep.DependencyResolver;
-import org.apache.zeppelin.util.Util;
 import org.sonatype.aether.RepositoryException;
 
 import java.io.File;
@@ -31,8 +28,12 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.zeppelin.conf.ZeppelinConfiguration;
+import org.apache.zeppelin.dep.DependencyResolver;
+import org.apache.zeppelin.util.Util;
+
 /**
- * Commandline utility to install interpreter from maven repository
+ * Commandline utility to install interpreter from maven repository.
  */
 public class InstallInterpreter {
   private final File interpreterListFile;
@@ -44,7 +45,6 @@ public class InstallInterpreter {
   private String proxyPassword;
 
   /**
-   *
    * @param interpreterListFile
    * @param interpreterBaseDir interpreter directory for installing binaries
    * @throws IOException
@@ -58,16 +58,15 @@ public class InstallInterpreter {
     readAvailableInterpreters();
   }
 
-
   /**
-   * Information for available informations
+   * Information for available informations.
    */
   private static class AvailableInterpreterInfo {
     public final String name;
     public final String artifact;
     public final String description;
 
-    public AvailableInterpreterInfo(String name, String artifact, String description) {
+    AvailableInterpreterInfo(String name, String artifact, String description) {
       this.name = name;
       this.artifact = artifact;
       this.description = description;
@@ -157,9 +156,9 @@ public class InstallInterpreter {
 
     File installDir = new File(interpreterBaseDir, name);
     if (installDir.exists()) {
-      System.err.println("Directory " + installDir.getAbsolutePath()
-        + " already exists"
-        + "\n\nSkipped");
+      System.err.println("Directory " + installDir.getAbsolutePath() +
+              " already exists" +
+              "\n\nSkipped");
       return;
     }
 
@@ -171,9 +170,7 @@ public class InstallInterpreter {
       System.out.println("Interpreter " + name + " installed under " +
           installDir.getAbsolutePath() + ".");
       startTip();
-    } catch (RepositoryException e) {
-      e.printStackTrace();
-    } catch (IOException e) {
+    } catch (RepositoryException | IOException e) {
       e.printStackTrace();
     }
   }
@@ -281,8 +278,8 @@ public class InstallInterpreter {
   }
 
   private static void startTip() {
-    System.out.println("\n1. Restart Zeppelin"
-      + "\n2. Create interpreter setting in 'Interpreter' menu on Zeppelin GUI"
-      + "\n3. Then you can bind the interpreter on your note");
+    System.out.println("\n1. Restart Zeppelin" +
+            "\n2. Create interpreter setting in 'Interpreter' menu on Zeppelin GUI" +
+            "\n3. Then you can bind the interpreter on your note");
   }
 }

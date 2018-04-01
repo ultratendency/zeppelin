@@ -16,10 +16,10 @@
  */
 package org.apache.zeppelin.helium;
 
-import org.apache.zeppelin.resource.ResourceSet;
-
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.zeppelin.resource.ResourceSet;
 
 public class HeliumTestApplication extends Application {
   private AtomicInteger numRun = new AtomicInteger(0);
@@ -40,6 +40,5 @@ public class HeliumTestApplication extends Application {
 
   @Override
   public void unload() throws ApplicationException {
-
   }
 }

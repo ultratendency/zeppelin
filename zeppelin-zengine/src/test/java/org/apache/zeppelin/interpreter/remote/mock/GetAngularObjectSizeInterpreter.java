@@ -14,30 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter.remote.mock;
 
+import java.util.Properties;
 
 import org.apache.zeppelin.interpreter.Interpreter;
 import org.apache.zeppelin.interpreter.InterpreterContext;
 import org.apache.zeppelin.interpreter.InterpreterResult;
 
-import java.util.Properties;
-
 public class GetAngularObjectSizeInterpreter extends Interpreter {
-
   public GetAngularObjectSizeInterpreter(Properties property) {
     super(property);
   }
 
   @Override
   public void open() {
-
   }
 
   @Override
   public void close() {
-
   }
 
   @Override
@@ -48,7 +43,6 @@ public class GetAngularObjectSizeInterpreter extends Interpreter {
 
   @Override
   public void cancel(InterpreterContext context) {
-
   }
 
   @Override

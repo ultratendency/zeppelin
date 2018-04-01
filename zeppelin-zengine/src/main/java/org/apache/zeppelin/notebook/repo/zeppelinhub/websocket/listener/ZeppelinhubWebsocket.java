@@ -16,18 +16,19 @@
  */
 package org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.listener;
 
-import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.ZeppelinhubClient;
-import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.utils.ZeppelinhubUtils;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.WebSocketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.ZeppelinhubClient;
+import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.utils.ZeppelinhubUtils;
+
 /**
  * Zeppelinhub websocket handler.
  */
 public class ZeppelinhubWebsocket implements WebSocketListener {
-  private Logger LOG = LoggerFactory.getLogger(ZeppelinhubWebsocket.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ZeppelinhubWebsocket.class);
   private Session zeppelinHubSession;
   private final String token;
   

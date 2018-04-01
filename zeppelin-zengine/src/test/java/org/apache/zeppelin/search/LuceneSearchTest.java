@@ -17,8 +17,17 @@
 package org.apache.zeppelin.search;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.*;
+
+import static org.mockito.Mockito.mock;
+
 import static org.apache.zeppelin.search.LuceneSearch.formatId;
+
+import com.google.common.base.Splitter;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,15 +40,8 @@ import org.apache.zeppelin.notebook.Note;
 import org.apache.zeppelin.notebook.Paragraph;
 import org.apache.zeppelin.notebook.repo.NotebookRepo;
 import org.apache.zeppelin.user.AuthenticationInfo;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.google.common.base.Splitter;
 
 public class LuceneSearchTest {
-
   private static NotebookRepo notebookRepoMock;
   private static InterpreterFactory interpreterFactory;
   private static InterpreterSettingManager interpreterSettingManager;
@@ -52,9 +54,6 @@ public class LuceneSearchTest {
     notebookRepoMock = mock(NotebookRepo.class);
     interpreterFactory = mock(InterpreterFactory.class);
     interpreterSettingManager = mock(InterpreterSettingManager.class);
-
-//    when(replLoaderMock.getInterpreterSettings())
-//      .thenReturn(ImmutableList.<InterpreterSetting>of());
   }
 
   @Before
@@ -68,7 +67,8 @@ public class LuceneSearchTest {
     noteSearchService.close();
   }
 
-  @Test public void canIndexNotebook() {
+  @Test
+  public void canIndexNotebook() {
     //give
     Note note1 = newNoteWithParagraph("Notebook1", "test");
     Note note2 = newNoteWithParagraph("Notebook2", "not test");
@@ -78,7 +78,8 @@ public class LuceneSearchTest {
     noteSearchService.addIndexDocs(notebook);
   }
 
-  @Test public void canIndexAndQuery() {
+  @Test
+  public void canIndexAndQuery() {
     //given
     Note note1 = newNoteWithParagraph("Notebook1", "test");
     Note note2 = newNoteWithParagraphs("Notebook2", "not test", "not test at all");
@@ -94,7 +95,8 @@ public class LuceneSearchTest {
       .containsEntry("id", formatId(note2.getId(), note2.getLastParagraph()));
   }
 
-  @Test public void canIndexAndQueryByNotebookName() {
+  @Test
+  public void canIndexAndQueryByNotebookName() {
     //given
     Note note1 = newNoteWithParagraph("Notebook1", "test");
     Note note2 = newNoteWithParagraphs("Notebook2", "not test", "not test at all");
@@ -122,16 +124,17 @@ public class LuceneSearchTest {
     //then
     assertThat(results).isNotEmpty();
     assertThat(results.size()).isAtLeast(1);
-    int TitleHits = 0;
+    int titleHits = 0;
     for (Map<String, String> res : results) {
       if (res.get("header").contains("testingTitleSearch")) {
-        TitleHits++;
+        titleHits++;
       }
     }
-    assertThat(TitleHits).isAtLeast(1);
+    assertThat(titleHits).isAtLeast(1);
   }
 
-  @Test public void indexKeyContract() throws IOException {
+  @Test
+  public void indexKeyContract() {
     //give
     Note note1 = newNoteWithParagraph("Notebook1", "test");
     //when
@@ -143,7 +146,7 @@ public class LuceneSearchTest {
       .containsAllOf(note1.getId(), LuceneSearch.PARAGRAPH, note1.getLastParagraph().getId());
   }
 
-  @Test //(expected=IllegalStateException.class)
+  @Test
   public void canNotSearchBeforeIndexing() {
     //given NO noteSearchService.index() was called
     //when
@@ -154,7 +157,8 @@ public class LuceneSearchTest {
     //"ERROR org.apache.zeppelin.search.SearchService:97 - Failed to open index dir RAMDirectory"
   }
 
-  @Test public void canIndexAndReIndex() throws IOException {
+  @Test
+  public void canIndexAndReIndex() throws IOException {
     //given
     Note note1 = newNoteWithParagraph("Notebook1", "test");
     Note note2 = newNoteWithParagraphs("Notebook2", "not test", "not test at all");
@@ -173,14 +177,16 @@ public class LuceneSearchTest {
     assertThat(results).isNotEmpty();
   }
 
-  @Test public void canDeleteNull() throws IOException {
+  @Test
+  public void canDeleteNull() {
     //give
     // looks like a bug in web UI: it tries to delete a note twice (after it has just been deleted)
     //when
     noteSearchService.deleteIndexDocs(null);
   }
 
-  @Test public void canDeleteFromIndex() throws IOException {
+  @Test
+  public void canDeleteFromIndex() {
     //given
     Note note1 = newNoteWithParagraph("Notebook1", "test");
     Note note2 = newNoteWithParagraphs("Notebook2", "not test", "not test at all");
@@ -199,7 +205,8 @@ public class LuceneSearchTest {
     assertThat(results.size()).isEqualTo(1);
   }
 
-  @Test public void indexParagraphUpdatedOnNoteSave() throws IOException {
+  @Test
+  public void indexParagraphUpdatedOnNoteSave() throws IOException {
     //given: total 2 notebooks, 3 paragraphs
     Note note1 = newNoteWithParagraph("Notebook1", "test");
     Note note2 = newNoteWithParagraphs("Notebook2", "not test", "not test at all");
@@ -220,11 +227,12 @@ public class LuceneSearchTest {
 
     //does not include Notebook1's paragraph any more
     for (Map<String, String> result: results) {
-      assertThat(result.get("id").startsWith(note1.getId())).isFalse();;
+      assertThat(result.get("id").startsWith(note1.getId())).isFalse();
     }
   }
 
-  @Test public void indexNoteNameUpdatedOnNoteSave() throws IOException {
+  @Test
+  public void indexNoteNameUpdatedOnNoteSave() throws IOException {
     //given: total 2 notebooks, 3 paragraphs
     Note note1 = newNoteWithParagraph("Notebook1", "test");
     Note note2 = newNoteWithParagraphs("Notebook2", "not test", "not test at all");
@@ -246,8 +254,7 @@ public class LuceneSearchTest {
   }
 
   /**
-   * Creates a new Note \w given name,
-   * adds a new paragraph \w given text
+   * Creates a new Note \w given name, adds a new paragraph \w given text.
    *
    * @param noteName name of the note
    * @param parText text of the paragraph
@@ -259,15 +266,14 @@ public class LuceneSearchTest {
     return note1;
   }
 
-  private Note newNoteWithParagraph(String noteName, String parText,String title) {
+  private Note newNoteWithParagraph(String noteName, String parText, String title) {
     Note note = newNote(noteName);
     addParagraphWithTextAndTitle(note, parText, title);
     return note;
   }
 
   /**
-   * Creates a new Note \w given name,
-   * adds N paragraphs \w given texts
+   * Creates a new Note \w given name, adds N paragraphs \w given texts.
    */
   private Note newNoteWithParagraphs(String noteName, String... parTexts) {
     Note note1 = newNote(noteName);
@@ -291,9 +297,9 @@ public class LuceneSearchTest {
   }
 
   private Note newNote(String name) {
-    Note note = new Note(notebookRepoMock, interpreterFactory, interpreterSettingManager, null, noteSearchService, null, null);
+    Note note = new Note(notebookRepoMock, interpreterFactory, interpreterSettingManager, null,
+            noteSearchService, null, null);
     note.setName(name);
     return note;
   }
-
 }

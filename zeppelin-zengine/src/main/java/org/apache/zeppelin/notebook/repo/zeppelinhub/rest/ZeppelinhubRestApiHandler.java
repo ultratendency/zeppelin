@@ -16,16 +16,8 @@
  */
 package org.apache.zeppelin.notebook.repo.zeppelinhub.rest;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Type;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -35,7 +27,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
-import org.apache.zeppelin.notebook.repo.zeppelinhub.model.Instance;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.client.api.Response;
@@ -47,19 +38,28 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+import org.apache.zeppelin.notebook.repo.zeppelinhub.model.Instance;
 
 /**
  * REST API handler.
- *
  */
 public class ZeppelinhubRestApiHandler {
   private static final Logger LOG = LoggerFactory.getLogger(ZeppelinhubRestApiHandler.class);
   public static final String ZEPPELIN_TOKEN_HEADER = "X-Zeppelin-Token";
   private static final String USER_SESSION_HEADER = "X-User-Session";
   private static final String DEFAULT_API_PATH = "/api/v1/zeppelin";
-  private static boolean PROXY_ON = false;
+  private static boolean proxyOn = false;
   //TODO(xxx): possibly switch to jetty-client > 9.3.12 when adopt jvm 1.8
   private static HttpProxyClient proxyClient;
   private final HttpClient client;
@@ -100,7 +100,7 @@ public class ZeppelinhubRestApiHandler {
         LOG.warn("Proxy uri doesn't follow correct syntax", e);
       }
       if (uri != null) {
-        PROXY_ON = true;
+        proxyOn = true;
         proxyClient = HttpProxyClient.newInstance(uri);
       }
     }
@@ -120,6 +120,7 @@ public class ZeppelinhubRestApiHandler {
 
   /**
    * Fetch zeppelin instances for a given user.
+   *
    * @param ticket
    * @return
    * @throws IOException
@@ -158,7 +159,7 @@ public class ZeppelinhubRestApiHandler {
       return StringUtils.EMPTY;
     }
     String url = zepelinhubUrl + argument;
-    if (PROXY_ON) {
+    if (proxyOn) {
       return sendToZeppelinHubViaProxy(new HttpGet(url), StringUtils.EMPTY, token, true);
     } else {
       return sendToZeppelinHub(HttpMethod.GET, url, StringUtils.EMPTY, token, true);
@@ -170,7 +171,7 @@ public class ZeppelinhubRestApiHandler {
       LOG.error("Empty note, cannot send it to zeppelinHub");
       throw new IOException("Cannot send emtpy note to zeppelinHub");
     }
-    if (PROXY_ON) {
+    if (proxyOn) {
       return sendToZeppelinHubViaProxy(new HttpPut(zepelinhubUrl + url), json, token, true);
     } else {
       return sendToZeppelinHub(HttpMethod.PUT, zepelinhubUrl + url, json, token, true);
@@ -182,7 +183,7 @@ public class ZeppelinhubRestApiHandler {
       LOG.error("Cannot save empty note/string to ZeppelinHub");
       return;
     }
-    if (PROXY_ON) {
+    if (proxyOn) {
       sendToZeppelinHubViaProxy(new HttpPut(zepelinhubUrl), jsonNote, token, false);
     } else {
       sendToZeppelinHub(HttpMethod.PUT, zepelinhubUrl, jsonNote, token, false);
@@ -194,7 +195,7 @@ public class ZeppelinhubRestApiHandler {
       LOG.error("Cannot delete empty note from ZeppelinHub");
       return;
     }
-    if (PROXY_ON) {
+    if (proxyOn) {
       sendToZeppelinHubViaProxy(new HttpDelete(zepelinhubUrl + argument), StringUtils.EMPTY, token,
           false);
     } else {
@@ -203,10 +204,8 @@ public class ZeppelinhubRestApiHandler {
     }
   }
   
-  private String sendToZeppelinHubViaProxy(HttpRequestBase request, 
-                                           String json, 
-                                           String token,
-                                           boolean withResponse) throws IOException {
+  private String sendToZeppelinHubViaProxy(HttpRequestBase request, String json, String token,
+          boolean withResponse) throws IOException {
     request.setHeader(ZEPPELIN_TOKEN_HEADER, token);
     if (request.getMethod().equals(HttpPost.METHOD_NAME)) {
       HttpPost post = (HttpPost) request;
@@ -227,12 +226,8 @@ public class ZeppelinhubRestApiHandler {
     return body; 
   }
   
-  private String sendToZeppelinHub(HttpMethod method,
-                                   String url,
-                                   String json,
-                                   String token,
-                                   boolean withResponse)
-      throws IOException {
+  private String sendToZeppelinHub(HttpMethod method, String url, String json, String token,
+          boolean withResponse) throws IOException {
     Request request = client.newRequest(url).method(method).header(ZEPPELIN_TOKEN_HEADER, token);
     if ((method.equals(HttpMethod.PUT) || method.equals(HttpMethod.POST))
         && !StringUtils.isBlank(json)) {
@@ -242,7 +237,7 @@ public class ZeppelinhubRestApiHandler {
         sendToZeppelinHub(request) : sendToZeppelinHubWithoutResponseBody(request);
   }
   
-  private String sendToZeppelinHubWithoutResponseBody(Request request) throws IOException {
+  private String sendToZeppelinHubWithoutResponseBody(Request request) {
     request.send(new Response.CompleteListener() {
       @Override
       public void onComplete(Result result) {

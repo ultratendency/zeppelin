@@ -14,16 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.notebook;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Sets;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -32,22 +33,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.zeppelin.conf.ZeppelinConfiguration;
 import org.apache.zeppelin.conf.ZeppelinConfiguration.ConfVars;
 import org.apache.zeppelin.storage.ConfigStorage;
 import org.apache.zeppelin.user.AuthenticationInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Sets;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 /**
- * Contains authorization information for notes
+ * Contains authorization information for notes.
  */
 public class NotebookAuthorization {
   private static final Logger LOG = LoggerFactory.getLogger(NotebookAuthorization.class);
@@ -188,7 +180,6 @@ public class NotebookAuthorization {
     saveToFile();
   }
 
-
   public void setWriters(String noteId, Set<String> entities) {
     Map<String, Set<String>> noteAuthInfo = authInfo.get(noteId);
     entities = validateUser(entities);
@@ -207,7 +198,7 @@ public class NotebookAuthorization {
 
   public Set<String> getOwners(String noteId) {
     Map<String, Set<String>> noteAuthInfo = authInfo.get(noteId);
-    Set<String> entities = null;
+    Set<String> entities;
     if (noteAuthInfo == null) {
       entities = new HashSet<>();
     } else {
@@ -221,7 +212,7 @@ public class NotebookAuthorization {
 
   public Set<String> getReaders(String noteId) {
     Map<String, Set<String>> noteAuthInfo = authInfo.get(noteId);
-    Set<String> entities = null;
+    Set<String> entities;
     if (noteAuthInfo == null) {
       entities = new HashSet<>();
     } else {
@@ -235,7 +226,7 @@ public class NotebookAuthorization {
 
   public Set<String> getRunners(String noteId) {
     Map<String, Set<String>> noteAuthInfo = authInfo.get(noteId);
-    Set<String> entities = null;
+    Set<String> entities;
     if (noteAuthInfo == null) {
       entities = new HashSet<>();
     } else {
@@ -249,7 +240,7 @@ public class NotebookAuthorization {
 
   public Set<String> getWriters(String noteId) {
     Map<String, Set<String>> noteAuthInfo = authInfo.get(noteId);
-    Set<String> entities = null;
+    Set<String> entities;
     if (noteAuthInfo == null) {
       entities = new HashSet<>();
     } else {

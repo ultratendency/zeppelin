@@ -14,8 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter.remote.mock;
+
+import java.util.List;
+import java.util.Properties;
 
 import org.apache.zeppelin.interpreter.Interpreter;
 import org.apache.zeppelin.interpreter.InterpreterContext;
@@ -26,11 +28,7 @@ import org.apache.zeppelin.interpreter.thrift.InterpreterCompletion;
 import org.apache.zeppelin.scheduler.Scheduler;
 import org.apache.zeppelin.scheduler.SchedulerFactory;
 
-import java.util.List;
-import java.util.Properties;
-
 public class MockInterpreterA extends Interpreter {
-
   private String lastSt;
 
   public MockInterpreterA(Properties property) {
@@ -67,7 +65,6 @@ public class MockInterpreterA extends Interpreter {
 
   @Override
   public void cancel(InterpreterContext context) {
-
   }
 
   @Override
@@ -89,9 +86,11 @@ public class MockInterpreterA extends Interpreter {
   @Override
   public Scheduler getScheduler() {
     if (getProperty("parallel") != null && getProperty("parallel").equals("true")) {
-      return SchedulerFactory.singleton().createOrGetParallelScheduler("interpreter_" + this.hashCode(), 10);
+      return SchedulerFactory.singleton().createOrGetParallelScheduler("interpreter_" +
+              this.hashCode(), 10);
     } else {
-      return SchedulerFactory.singleton().createOrGetFIFOScheduler("interpreter_" + this.hashCode());
+      return SchedulerFactory.singleton().createOrGetFIFOScheduler("interpreter_" +
+              this.hashCode());
     }
   }
 }

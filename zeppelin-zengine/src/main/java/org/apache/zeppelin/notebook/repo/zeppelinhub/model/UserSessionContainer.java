@@ -16,14 +16,13 @@
  */
 package org.apache.zeppelin.notebook.repo.zeppelinhub.model;
 
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.lang.StringUtils;
-
 /**
  * Simple and yet dummy container for zeppelinhub session.
- * 
  */
 public class UserSessionContainer {
   private static class Entity {
@@ -36,7 +35,7 @@ public class UserSessionContainer {
 
   private Map<String, Entity> sessions = new ConcurrentHashMap<>();
 
-  public static final UserSessionContainer instance = new UserSessionContainer();
+  public static final UserSessionContainer INSTANCE = new UserSessionContainer();
 
   public synchronized String getSession(String principal) {
     Entity entry = sessions.get(principal);

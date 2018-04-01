@@ -14,10 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter.remote.mock;
 
 import com.google.gson.Gson;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Properties;
+
 import org.apache.zeppelin.interpreter.Interpreter;
 import org.apache.zeppelin.interpreter.InterpreterContext;
 import org.apache.zeppelin.interpreter.InterpreterResult;
@@ -26,13 +32,8 @@ import org.apache.zeppelin.interpreter.thrift.InterpreterCompletion;
 import org.apache.zeppelin.resource.Resource;
 import org.apache.zeppelin.resource.ResourcePool;
 
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class MockInterpreterResourcePool extends Interpreter {
-
-  AtomicInteger numWatch = new AtomicInteger(0);
+  private static final Logger LOGGER = LoggerFactory.getLogger(MockInterpreterResourcePool.class);
 
   public MockInterpreterResourcePool(Properties property) {
     super(property);
@@ -44,7 +45,6 @@ public class MockInterpreterResourcePool extends Interpreter {
 
   @Override
   public void close() {
-
   }
 
   @Override
@@ -86,7 +86,7 @@ public class MockInterpreterResourcePool extends Interpreter {
       ret = resourcePool.getAll();
     } else if (cmd.equals("invoke")) {
       Resource resource = resourcePool.get(noteId, paragraphId, name);
-      if (stmt.length >=4) {
+      if (stmt.length >= 4) {
         Resource res = resource.invokeMethod(value, null, null, stmt[3]);
         ret = res.get();
       } else {
@@ -97,6 +97,7 @@ public class MockInterpreterResourcePool extends Interpreter {
     try {
       Thread.sleep(500); // wait for watcher executed
     } catch (InterruptedException e) {
+      LOGGER.debug("ignored exception", e);
     }
 
     Gson gson = new Gson();

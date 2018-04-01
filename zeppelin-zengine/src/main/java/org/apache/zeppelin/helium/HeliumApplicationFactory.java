@@ -16,22 +16,34 @@
  */
 package org.apache.zeppelin.helium;
 
-import org.apache.zeppelin.interpreter.*;
-import org.apache.zeppelin.interpreter.remote.RemoteAngularObjectRegistry;
-import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcess;
-import org.apache.zeppelin.interpreter.thrift.RemoteApplicationResult;
-import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterService;
-import org.apache.zeppelin.notebook.*;
-import org.apache.zeppelin.scheduler.ExecutorFactory;
-import org.apache.zeppelin.scheduler.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import org.apache.zeppelin.interpreter.Interpreter;
+import org.apache.zeppelin.interpreter.InterpreterException;
+import org.apache.zeppelin.interpreter.InterpreterGroup;
+import org.apache.zeppelin.interpreter.InterpreterInfo;
+import org.apache.zeppelin.interpreter.InterpreterNotFoundException;
+import org.apache.zeppelin.interpreter.InterpreterResult;
+import org.apache.zeppelin.interpreter.InterpreterSetting;
+import org.apache.zeppelin.interpreter.ManagedInterpreterGroup;
+import org.apache.zeppelin.interpreter.remote.RemoteAngularObjectRegistry;
+import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcess;
+import org.apache.zeppelin.interpreter.thrift.RemoteApplicationResult;
+import org.apache.zeppelin.interpreter.thrift.RemoteInterpreterService;
+import org.apache.zeppelin.notebook.ApplicationState;
+import org.apache.zeppelin.notebook.Note;
+import org.apache.zeppelin.notebook.Notebook;
+import org.apache.zeppelin.notebook.NotebookEventListener;
+import org.apache.zeppelin.notebook.Paragraph;
+import org.apache.zeppelin.scheduler.ExecutorFactory;
+import org.apache.zeppelin.scheduler.Job;
+
 /**
- * HeliumApplicationFactory
+ * HeliumApplicationFactory.
  */
 public class HeliumApplicationFactory implements ApplicationEventListener, NotebookEventListener {
   private final Logger logger = LoggerFactory.getLogger(HeliumApplicationFactory.class);
@@ -48,9 +60,8 @@ public class HeliumApplicationFactory implements ApplicationEventListener, Noteb
     return group.getAngularObjectRegistry() instanceof RemoteAngularObjectRegistry;
   }
 
-
   /**
-   * Load pkg and run task
+   * Load pkg and run task.
    */
   public String loadAndRun(HeliumPackage pkg, Paragraph paragraph) {
     ApplicationState appState = paragraph.createOrGetApplicationState(pkg);
@@ -61,14 +72,14 @@ public class HeliumApplicationFactory implements ApplicationEventListener, Noteb
   }
 
   /**
-   * Load application and run in the remote process
+   * Load application and run in the remote process.
    */
   private class LoadApplication implements Runnable {
     private final HeliumPackage pkg;
     private final Paragraph paragraph;
     private final ApplicationState appState;
 
-    public LoadApplication(ApplicationState appState, HeliumPackage pkg, Paragraph paragraph) {
+    LoadApplication(ApplicationState appState, HeliumPackage pkg, Paragraph paragraph) {
       this.appState = appState;
       this.pkg = pkg;
       this.paragraph = paragraph;
@@ -102,8 +113,7 @@ public class HeliumApplicationFactory implements ApplicationEventListener, Noteb
     }
 
     private void load(RemoteInterpreterProcess intpProcess, ApplicationState appState)
-        throws Exception {
-
+            throws Exception {
       synchronized (appState) {
         if (appState.getStatus() == ApplicationState.Status.LOADED) {
           // already loaded
@@ -137,7 +147,8 @@ public class HeliumApplicationFactory implements ApplicationEventListener, Noteb
   }
 
   /**
-   * Get ApplicationState
+   * Get ApplicationState.
+   *
    * @param paragraph
    * @param appId
    * @return
@@ -147,8 +158,7 @@ public class HeliumApplicationFactory implements ApplicationEventListener, Noteb
   }
 
   /**
-   * Unload application
-   * It does not remove ApplicationState
+   * Unload application. It does not remove ApplicationState.
    *
    * @param paragraph
    * @param appId
@@ -158,13 +168,13 @@ public class HeliumApplicationFactory implements ApplicationEventListener, Noteb
   }
 
   /**
-   * Unload application task
+   * Unload application task.
    */
   private class UnloadApplication implements Runnable {
     private final Paragraph paragraph;
     private final String appId;
 
-    public UnloadApplication(Paragraph paragraph, String appId) {
+    UnloadApplication(Paragraph paragraph, String appId) {
       this.paragraph = paragraph;
       this.appId = appId;
     }
@@ -200,7 +210,7 @@ public class HeliumApplicationFactory implements ApplicationEventListener, Noteb
               "Can't unload application status " + appsToUnload.getStatus());
         }
         appStatusChange(paragraph, appsToUnload.getId(), ApplicationState.Status.UNLOADING);
-        Interpreter intp = null;
+        Interpreter intp;
         try {
           intp = paragraph.getBindedInterpreter();
         } catch (InterpreterException e) {
@@ -232,8 +242,7 @@ public class HeliumApplicationFactory implements ApplicationEventListener, Noteb
   }
 
   /**
-   * Run application
-   * It does not remove ApplicationState
+   * Run application. It does not remove ApplicationState.
    *
    * @param paragraph
    * @param appId
@@ -243,13 +252,13 @@ public class HeliumApplicationFactory implements ApplicationEventListener, Noteb
   }
 
   /**
-   * Run application task
+   * Run application task.
    */
   private class RunApplication implements Runnable {
     private final Paragraph paragraph;
     private final String appId;
 
-    public RunApplication(Paragraph paragraph, String appId) {
+    RunApplication(Paragraph paragraph, String appId) {
       this.paragraph = paragraph;
       this.appId = appId;
     }
@@ -282,7 +291,7 @@ public class HeliumApplicationFactory implements ApplicationEventListener, Noteb
               "Can't run application status " + app.getStatus());
         }
 
-        Interpreter intp = null;
+        Interpreter intp;
         try {
           intp = paragraph.getBindedInterpreter();
         } catch (InterpreterException e) {
@@ -313,8 +322,8 @@ public class HeliumApplicationFactory implements ApplicationEventListener, Noteb
   }
 
   @Override
-  public void onOutputAppend(
-      String noteId, String paragraphId, int index, String appId, String output) {
+  public void onOutputAppend(String noteId, String paragraphId, int index, String appId,
+          String output) {
     ApplicationState appToUpdate = getAppState(noteId, paragraphId, appId);
 
     if (appToUpdate != null) {
@@ -329,9 +338,8 @@ public class HeliumApplicationFactory implements ApplicationEventListener, Noteb
   }
 
   @Override
-  public void onOutputUpdated(
-      String noteId, String paragraphId, int index, String appId,
-      InterpreterResult.Type type, String output) {
+  public void onOutputUpdated(String noteId, String paragraphId, int index, String appId,
+          InterpreterResult.Type type, String output) {
     ApplicationState appToUpdate = getAppState(noteId, paragraphId, appId);
 
     if (appToUpdate != null) {
@@ -364,9 +372,7 @@ public class HeliumApplicationFactory implements ApplicationEventListener, Noteb
     }
   }
 
-  private void appStatusChange(Paragraph paragraph,
-                               String appId,
-                               ApplicationState.Status status) {
+  private void appStatusChange(Paragraph paragraph, String appId, ApplicationState.Status status) {
     ApplicationState app = paragraph.getApplicationState(appId);
     app.setStatus(status);
     onStatusChange(paragraph.getNote().getId(), paragraph.getId(), appId, status.toString());
@@ -415,13 +421,12 @@ public class HeliumApplicationFactory implements ApplicationEventListener, Noteb
 
   @Override
   public void onNoteCreate(Note note) {
-
   }
 
   @Override
   public void onUnbindInterpreter(Note note, InterpreterSetting setting) {
     for (Paragraph p : note.getParagraphs()) {
-      Interpreter currentInterpreter = null;
+      Interpreter currentInterpreter;
       try {
         currentInterpreter = p.getBindedInterpreter();
       } catch (InterpreterNotFoundException e) {
@@ -450,7 +455,6 @@ public class HeliumApplicationFactory implements ApplicationEventListener, Noteb
 
   @Override
   public void onParagraphCreate(Paragraph p) {
-
   }
 
   @Override

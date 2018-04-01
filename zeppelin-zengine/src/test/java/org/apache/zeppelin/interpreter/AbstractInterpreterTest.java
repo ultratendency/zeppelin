@@ -1,11 +1,24 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.apache.zeppelin.interpreter;
 
+import static org.mockito.Mockito.mock;
+
 import org.apache.commons.io.FileUtils;
-import org.apache.zeppelin.conf.ZeppelinConfiguration;
-import org.apache.zeppelin.display.AngularObjectRegistryListener;
-import org.apache.zeppelin.helium.ApplicationEventListener;
-import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcessListener;
-import org.apache.zeppelin.notebook.Note;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -13,16 +26,18 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
-import static org.mockito.Mockito.mock;
-
+import org.apache.zeppelin.conf.ZeppelinConfiguration;
+import org.apache.zeppelin.display.AngularObjectRegistryListener;
+import org.apache.zeppelin.helium.ApplicationEventListener;
+import org.apache.zeppelin.interpreter.remote.RemoteInterpreterProcessListener;
+import org.apache.zeppelin.notebook.Note;
 
 /**
- * This class will load configuration files under
+ * This class will load configuration files under:
  *   src/test/resources/interpreter
  *   src/test/resources/conf
  *
- * to construct InterpreterSettingManager and InterpreterFactory properly
- *
+ * to construct InterpreterSettingManager and InterpreterFactory properly.
  */
 public abstract class AbstractInterpreterTest {
   protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractInterpreterTest.class);
@@ -51,15 +66,21 @@ public abstract class AbstractInterpreterTest {
     FileUtils.copyDirectory(new File("src/test/resources/interpreter"), interpreterDir);
     FileUtils.copyDirectory(new File("src/test/resources/conf"), confDir);
 
-    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_HOME.getVarName(), zeppelinHome.getAbsolutePath());
-    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_CONF_DIR.getVarName(), confDir.getAbsolutePath());
-    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_INTERPRETER_DIR.getVarName(), interpreterDir.getAbsolutePath());
-    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_NOTEBOOK_DIR.getVarName(), notebookDir.getAbsolutePath());
-    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_INTERPRETER_GROUP_ORDER.getVarName(), "test,mock1,mock2,mock_resource_pool");
+    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_HOME.getVarName(),
+            zeppelinHome.getAbsolutePath());
+    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_CONF_DIR.getVarName(),
+            confDir.getAbsolutePath());
+    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_INTERPRETER_DIR.getVarName(),
+            interpreterDir.getAbsolutePath());
+    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_NOTEBOOK_DIR.getVarName(),
+            notebookDir.getAbsolutePath());
+    System.setProperty(ZeppelinConfiguration.ConfVars.ZEPPELIN_INTERPRETER_GROUP_ORDER.getVarName(),
+            "test,mock1,mock2,mock_resource_pool");
 
     conf = new ZeppelinConfiguration();
     interpreterSettingManager = new InterpreterSettingManager(conf,
-        mock(AngularObjectRegistryListener.class), mock(RemoteInterpreterProcessListener.class), mock(ApplicationEventListener.class));
+            mock(AngularObjectRegistryListener.class), mock(RemoteInterpreterProcessListener.class),
+            mock(ApplicationEventListener.class));
     interpreterFactory = new InterpreterFactory(interpreterSettingManager);
   }
 

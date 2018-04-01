@@ -16,20 +16,20 @@
  */
 package org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.utils;
 
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.zeppelin.notebook.repo.zeppelinhub.model.UserTokenContainer;
 import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.ZeppelinhubClient;
 import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.protocol.ZeppelinHubOp;
 import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.protocol.ZeppelinhubMessage;
 import org.apache.zeppelin.notebook.socket.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Helper class.
- *
  */
 public class ZeppelinhubUtils {
   private static final Logger LOG = LoggerFactory.getLogger(ZeppelinhubUtils.class);
@@ -117,7 +117,7 @@ public class ZeppelinhubUtils {
   }
   
   public static void userSwitchTokenRoutine(String username, String originToken,
-      String targetToken) {
+          String targetToken) {
     String offMsg = ZeppelinhubUtils.deadMessage(originToken);
     ZeppelinhubClient.getInstance().send(offMsg, originToken);
     ZeppelinhubClient.getInstance().removeSession(originToken);

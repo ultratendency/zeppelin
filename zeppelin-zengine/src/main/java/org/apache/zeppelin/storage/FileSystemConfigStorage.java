@@ -14,32 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
 package org.apache.zeppelin.storage;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.apache.hadoop.fs.Path;
-import org.apache.zeppelin.conf.ZeppelinConfiguration;
-import org.apache.zeppelin.helium.HeliumConf;
-import org.apache.zeppelin.interpreter.InterpreterInfoSaving;
-import org.apache.zeppelin.interpreter.InterpreterSetting;
-import org.apache.zeppelin.notebook.FileSystemStorage;
-import org.apache.zeppelin.notebook.NotebookAuthorizationInfoSaving;
-import org.apache.zeppelin.user.CredentialsInfoSaving;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import org.apache.zeppelin.conf.ZeppelinConfiguration;
+import org.apache.zeppelin.interpreter.InterpreterInfoSaving;
+import org.apache.zeppelin.notebook.FileSystemStorage;
+import org.apache.zeppelin.notebook.NotebookAuthorizationInfoSaving;
+
 /**
  * It could be used either local file system or hadoop distributed file system,
  * because FileSystem support both local file system and hdfs.
- *
  */
 public class FileSystemConfigStorage extends ConfigStorage {
-
   private static final Logger LOGGER = LoggerFactory.getLogger(FileSystemConfigStorage.class);
 
   private FileSystemStorage fs;
@@ -108,5 +100,4 @@ public class FileSystemConfigStorage extends ConfigStorage {
     LOGGER.info("Save Credentials to file: " + credentialPath);
     fs.writeFile(credentials, credentialPath, false);
   }
-
 }

@@ -16,15 +16,15 @@
  */
 package org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.scheduler;
 
-import org.apache.zeppelin.notebook.repo.zeppelinhub.model.UserTokenContainer;
-import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.ZeppelinhubClient;
-import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.utils.ZeppelinhubUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.zeppelin.notebook.repo.zeppelinhub.model.UserTokenContainer;
+import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.ZeppelinhubClient;
+import org.apache.zeppelin.notebook.repo.zeppelinhub.websocket.utils.ZeppelinhubUtils;
+
 /**
  * Routine that send PING event to zeppelinhub.
- *
  */
 public class ZeppelinHubHeartbeat implements Runnable {
   private static final Logger LOG = LoggerFactory.getLogger(ZeppelinHubHeartbeat.class);

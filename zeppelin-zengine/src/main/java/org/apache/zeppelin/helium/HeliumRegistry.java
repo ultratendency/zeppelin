@@ -17,11 +17,10 @@
 package org.apache.zeppelin.helium;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 /**
- * Helium package registry
+ * Helium package registry.
  */
 public abstract class HeliumRegistry {
   private final String name;

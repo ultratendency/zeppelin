@@ -136,7 +136,7 @@ public class LoginRestApi {
       if ("anonymous".equals(principal)) {
         ticket = "anonymous";
       } else {
-        ticket = TicketContainer.instance.getTicket(principal);
+        ticket = TicketContainer.INSTANCE.getTicket(principal);
       }
 
       Map<String, String> data = new HashMap<>();
@@ -204,7 +204,7 @@ public class LoginRestApi {
   public Response logout() {
     JsonResponse response;
     Subject currentUser = org.apache.shiro.SecurityUtils.getSubject();
-    TicketContainer.instance.removeTicket(SecurityUtils.getPrincipal());
+    TicketContainer.INSTANCE.removeTicket(SecurityUtils.getPrincipal());
     currentUser.getSession().stop();
     currentUser.logout();
     if (isKnoxSSOEnabled()) {
@@ -215,7 +215,6 @@ public class LoginRestApi {
       response = new JsonResponse(Status.UNAUTHORIZED, "", data);
     } else {
       response = new JsonResponse(Status.UNAUTHORIZED, "", "");
-
     }
     LOG.warn(response.toString());
     return response.build();
@@ -229,5 +228,4 @@ public class LoginRestApi {
     }
     return redirectURL.toString();
   }
-
 }

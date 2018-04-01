@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -30,18 +29,15 @@ import java.util.Properties;
  * InterpreterGroup implicitly by Zeppelin.
  */
 public class ConfInterpreter extends Interpreter {
-
-  private static Logger LOGGER = LoggerFactory.getLogger(ConfInterpreter.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConfInterpreter.class);
 
   protected String sessionId;
   protected String interpreterGroupId;
   protected InterpreterSetting interpreterSetting;
 
 
-  public ConfInterpreter(Properties properties,
-                         String sessionId,
-                         String interpreterGroupId,
-                         InterpreterSetting interpreterSetting) {
+  public ConfInterpreter(Properties properties, String sessionId, String interpreterGroupId,
+          InterpreterSetting interpreterSetting) {
     super(properties);
     this.sessionId = sessionId;
     this.interpreterGroupId = interpreterGroupId;
@@ -50,18 +46,15 @@ public class ConfInterpreter extends Interpreter {
 
   @Override
   public void open() throws InterpreterException {
-
   }
 
   @Override
   public void close() throws InterpreterException {
-
   }
 
   @Override
   public InterpreterResult interpret(String st, InterpreterContext context)
-      throws InterpreterException {
-
+          throws InterpreterException {
     try {
       Properties finalProperties = new Properties();
       finalProperties.putAll(getProperties());
@@ -80,7 +73,6 @@ public class ConfInterpreter extends Interpreter {
 
   @Override
   public void cancel(InterpreterContext context) throws InterpreterException {
-
   }
 
   @Override

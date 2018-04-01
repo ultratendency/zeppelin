@@ -14,11 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.plugin;
 
-import org.apache.zeppelin.conf.ZeppelinConfiguration;
-import org.apache.zeppelin.notebook.repo.NotebookRepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +28,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceLoader;
 
+import org.apache.zeppelin.conf.ZeppelinConfiguration;
+import org.apache.zeppelin.notebook.repo.NotebookRepo;
+
 /**
- * Class for loading Plugins
+ * Class for loading Plugins.
  */
 public class PluginManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(PluginManager.class);
@@ -60,11 +60,13 @@ public class PluginManager {
             (Class.forName(notebookRepoClassName).newInstance());
         return notebookRepo;
       } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-        LOGGER.warn("Fail to instantiate notebookrepo from classpath directly:" + notebookRepoClassName, e);
+        LOGGER.warn("Fail to instantiate notebookrepo from classpath directly:" +
+                notebookRepoClassName, e);
       }
     }
 
-    String simpleClassName = notebookRepoClassName.substring(notebookRepoClassName.lastIndexOf(".") + 1);
+    String simpleClassName = notebookRepoClassName.substring(
+            notebookRepoClassName.lastIndexOf(".") + 1);
     File pluginFolder = new File(pluginsDir + "/NotebookRepo/" + simpleClassName);
     if (!pluginFolder.exists() || pluginFolder.isFile()) {
       LOGGER.warn("pluginFolder " + pluginFolder.getAbsolutePath() +
@@ -90,5 +92,4 @@ public class PluginManager {
     }
     return notebookRepo;
   }
-
 }

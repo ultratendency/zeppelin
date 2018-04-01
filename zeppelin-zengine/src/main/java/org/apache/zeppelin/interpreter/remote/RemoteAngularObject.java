@@ -14,24 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.zeppelin.interpreter.remote;
 
 import org.apache.zeppelin.display.AngularObject;
 import org.apache.zeppelin.display.AngularObjectListener;
-import org.apache.zeppelin.interpreter.InterpreterGroup;
 import org.apache.zeppelin.interpreter.ManagedInterpreterGroup;
 
 /**
- * Proxy for AngularObject that exists in remote interpreter process
+ * Proxy for AngularObject that exists in remote interpreter process.
  */
 public class RemoteAngularObject extends AngularObject {
-
   private transient ManagedInterpreterGroup interpreterGroup;
 
   RemoteAngularObject(String name, Object o, String noteId, String paragraphId,
-                      ManagedInterpreterGroup interpreterGroup,
-                      AngularObjectListener listener) {
+          ManagedInterpreterGroup interpreterGroup, AngularObjectListener listener) {
     super(name, o, noteId, paragraphId, listener);
     this.interpreterGroup = interpreterGroup;
   }

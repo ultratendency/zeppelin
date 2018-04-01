@@ -14,12 +14,14 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-
 package org.apache.zeppelin.user;
 
+import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
+import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,18 +39,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
-import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
-
 /**
- * Class defining credentials for data source authorization
+ * Class defining credentials for data source authorization.
  */
 public class Credentials {
   private static final Logger LOG = LoggerFactory.getLogger(Credentials.class);
 
   private Map<String, UserCredentials> credentialsMap;
   private Gson gson;
-  private Boolean credentialsPersist = true;
+  private Boolean credentialsPersist;
   File credentialsFile;
 
   private Encryptor encryptor;
@@ -150,7 +149,7 @@ public class Credentials {
     }
   }
 
-  private void saveToFile() throws IOException {
+  private void saveToFile() {
     String jsonString;
 
     synchronized (credentialsMap) {
